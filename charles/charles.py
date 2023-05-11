@@ -1,94 +1,89 @@
 from random import shuffle, sample, choice, random
 from copy import deepcopy
+import itertools
 
 class Individual:
     """
       Possible solution to an optimization problem
     """
     # we always initialize
-    def __init__(self, representation = None, size = None, valid_set = None, replacement = True):
-        # valid set is a list of possible values on the representation
-        # size is the size of the binary number for example
+    def __init__(self, arrangement = None):
 
-        if representation is None:
-            # individual will be chosen from the valid_set with a specific size
+        representation = []
+        
+        for table in arrangement:
+            representation.append(set(table))
 
-            if replacement:
-                self.representation = [choice(valid_set) for _ in range(size)]
-            else:
-                self.representation = sample(valid_set, size)
-
-        # if we pass an argument like Individual(my_path)
-        else:
-            self.representation = representation
-
-    def __repr__(self):
-        """
-         Solution representation
-        """
-        return self.representation
+        self.representation = representation
 
     def __str__(self):
         """
          Solution string representation
         """
+        # TODO
         return str(self.representation)
     
     def __len__(self):
+        # TODO
         return len(self.representation)
-
-    def __setitem__(self, position, value):
-        self.representation[position] = value
-    
-    def __getitem__(self, position):
-        return self.representation[position]
-    
-    def index(self, value):
-        return self.representation.index(value)
-    
-    def get_neighbours():
-        raise Exception('You need to implement this method')
     
     def get_fitness():
         """
          Solution fitness
         """
+        # TODO
         raise Exception('You need to implement this method')
 
 class Population:
     """
       Search Space: set of individuals
     """
-    def __init__(self, size, optim, type_of_individ,  **kwargs):
+    def __init__(self, pop_size, nr_guests, nr_tables):
 
-        self.type_of_individ = type_of_individ
 
         # population size
-        self.size = size
+        self.nr_guests = nr_guests
 
         # defining the optimization problem as a minimization or maximization problem
-        self.optim = optim
+        self.nr_tables = nr_tables
 
         self.individuals = []
 
-        # appending the population with all possible individuals (all possible solutions)
-        for _ in range(size):
-            self.individuals.append(
-                type_of_individ(
-                    size = kwargs['sol_size'],
-                    valid_set = kwargs['valid_set'],
-                    replacement = kwargs['replacement']
-                )
-            )
+        nrs = [i for i in range(1, nr_guests + 1)]
+
+        possible_tables = list(itertools.combinations(nrs, nr_guests // nr_tables))
+
+        table_distributions = list(itertools.combinations(possible_tables, nr_tables))
+
+        valid_arrangements = []
+
+        for combination in table_distributions:
+            unique_values = set(num for group in combination for num in group)
+            
+            if len(unique_values) == len(nrs): # confirm that there are no redundant solutions
+                        valid_arrangements.append(combination)
+
+        
+        selected_arrangements = sample(valid_arrangements, pop_size)
+
+
+        for arrangement in selected_arrangements:
+            self.individuals.append(Individual(arrangement))
+    
+    def __str__(self):
+        """
+         Population string representation
+        """
+        # TODO
+        for individual in self.individuals:
+            print(individual)
+        # return str(self.individuals)
 
     def __len__(self):
         return len(self.individuals)
 
     def __getitem__(self, position):
         return self.individuals[position]
-
-    def get_type_of_individ(self):
-        return self.type_of_individ
     
     def get_size(self):
         return self.size
@@ -158,3 +153,10 @@ class Population:
 
             best_indiv = self.best_individual()
             print(f'Best individual in generation {i}: {best_indiv} Fitness: {best_indiv.get_fitness()}')
+
+
+
+
+pop = Population(10, 64, 8)
+
+print(pop)
