@@ -20,6 +20,10 @@ def eager_breader_crossover(p1, p2):
 
     offspring = Individual(arrangement = None)
 
+    guests_per_table = len(p1[0])
+    nr_guests = len(p1) * guests_per_table
+
+
     # Add tables until child has the correct number of tables
     while(len(offspring) < len(p1)):
         fit_table1 = p1.get_table_fitness(p1_idx)
@@ -30,9 +34,6 @@ def eager_breader_crossover(p1, p2):
         else:
             offspring.append_table(p2[p2_idx])
             p2_idx += 1
-
-    # All good until here
-    print('Offspring: ', offspring)
         
     # ----------------- Repair phase ----------------- #
 
@@ -59,38 +60,33 @@ def eager_breader_crossover(p1, p2):
         else:
             offspring[tables_idx[0]].remove(guest)
 
-    # All good until here
-    print('Offspring: ', offspring)
-
     
-    # # Fill the empty seats
-    # guests_per_table = len(p1[0])
-    # nr_guests = len(p1) * guests_per_table
-    # not_seated_guests = [guest for guest in range(1, nr_guests + 1) if guest not in guest_counts]
+    # Fill the empty seats
+    not_seated_guests = [guest for guest in range(1, nr_guests + 1) if guest not in guest_counts]
 
-    # for table_idx, table in enumerate(offspring):
-    #     # Table with empty seats
-    #     while len(table) != guests_per_table:
-    #         max_fitness = 0
-    #         guest_max_fitness = None
-    #         for guest in not_seated_guests:
-    #             # TODO: Não sei se é melhor maneira
-    #             off_aux = deepcopy(offspring)
+    for table_idx in range(len(offspring)):
+        # Table with empty seats
+        while len(offspring[table_idx]) < guests_per_table:
+            max_fitness = -1
+            guest_max_fitness = None
+            for guest in not_seated_guests:
+                # TODO: Não sei se é melhor maneira
+                off_aux = deepcopy(offspring)
 
-    #             # Seat guest at the table
-    #             off_aux.seat_guest(guest, table_idx)
+                # Seat guest at the table
+                off_aux.seat_guest(guest, table_idx)
 
-    #             # Check if guest has higher fitness in that table
-    #             if off_aux.get_guest_fitness(guest, table_idx) > max_fitness:
-    #                 max_fitness = off_aux.get_guest_fitness(guest, table_idx)
-    #                 guest_max_fitness = guest
+                # Check if guest has higher fitness in that table
+                if off_aux.get_guest_fitness(guest, table_idx) > max_fitness:
+                    max_fitness = off_aux.get_guest_fitness(guest, table_idx)
+                    guest_max_fitness = guest
 
-    #         # Seat the guest that has the highest fitness
-    #         offspring.seat_guest(guest_max_fitness, table_idx)
+            # Seat the guest that has the highest fitness
+            offspring.seat_guest(guest_max_fitness, table_idx)
 
-    #         # Remove guest from the list of not seated guests
-    #         not_seated_guests.remove(guest_max_fitness)
-    
-    # return offspring
+            # Remove guest from the list of not seated guests
+            not_seated_guests.remove(guest_max_fitness)
+
+    return offspring
 
         
