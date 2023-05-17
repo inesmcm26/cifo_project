@@ -24,10 +24,6 @@ def eager_breader_crossover(p1, p2):
     while(len(offspring) < len(p1)):
         fit_table1 = p1.get_table_fitness(p1_idx)
         fit_table2 = p2.get_table_fitness(p2_idx)
-
-        print('Fitness table 1: ', fit_table1)
-        print('Fitness table 2: ', fit_table2)
-
         if fit_table1 >= fit_table2:
             offspring.append_table(p1[p1_idx])
             p1_idx += 1
@@ -35,32 +31,37 @@ def eager_breader_crossover(p1, p2):
             offspring.append_table(p2[p2_idx])
             p2_idx += 1
 
-    # All goos until here
+    # All good until here
+    print('Offspring: ', offspring)
         
-    # # ----------------- Repair phase ----------------- #
+    # ----------------- Repair phase ----------------- #
 
-    # # Count the occurrences of each number in the sets
-    # guest_counts = Counter(guest for table in offspring for guest in table)
+    # Count the occurrences of each number in the sets
+    guest_counts = Counter(guest for table in offspring for guest in table)
 
-    # # Get the numbers that occur more than once
-    # repeated_guests = {guest for guest, count in guest_counts.items() if count > 1}
+    # Get the numbers that occur more than once
+    repeated_guests = {guest for guest, count in guest_counts.items() if count > 1}
 
-    # # Remove guest from table where he has lowest fitness
-    # for guest in repeated_guests:
-    #     # Guest fitness in each table
-    #     guest_fitnesses = []
-    #     tables_idx = []
+    # Remove guest from table where he has lowest fitness
+    for guest in repeated_guests:
+        # Guest fitness in each table
+        guest_fitnesses = []
+        tables_idx = []
 
-    #     for table_idx, table in enumerate(offspring):
-    #         if guest in table:
-    #             guest_fitnesses.append(offspring.get_guest_fitness(guest, table_idx))
-    #             tables_idx.append(tables_idx)
-        
-    #     # Remove guest from the table where it has lowest fitness
-    #     if guest_fitnesses[0] >= guest_fitnesses[1]:
-    #         offspring[tables_idx[1]].remove(guest)
-    #     else:
-    #         offspring[tables_idx[0]].remove(guest)
+        for table_idx, table in enumerate(offspring):
+            if guest in table:
+                guest_fitnesses.append(offspring.get_guest_fitness(guest, table_idx))
+                tables_idx.append(table_idx)
+
+        # Remove guest from the table where it has lowest fitness
+        if guest_fitnesses[0] >= guest_fitnesses[1]:
+            offspring[tables_idx[1]].remove(guest)
+        else:
+            offspring[tables_idx[0]].remove(guest)
+
+    # All good until here
+    print('Offspring: ', offspring)
+
     
     # # Fill the empty seats
     # guests_per_table = len(p1[0])
