@@ -1,6 +1,7 @@
 from random import shuffle, sample, choice, random
 from copy import deepcopy
-import itertools
+import pandas as pd
+from data.relationships import relationships_matrix
 
 class Individual:
     """
@@ -11,8 +12,10 @@ class Individual:
 
         representation = []
         
-        for table in arrangement:
-            representation.append(set(table))
+        # arragement is a frozenset with frozensets of guests
+        # let's covert it into a list of sets
+        arrangement = list(arrangement)
+        representation = [set(table) for table in arrangement]
 
         self.representation = representation
 
@@ -20,19 +23,39 @@ class Individual:
         """
          Solution string representation
         """
-        # TODO
         return str(self.representation)
     
     def __len__(self):
         # TODO
         return len(self.representation)
     
-    def get_fitness():
+    def get_fitness(self):
         """
          Solution fitness
         """
         # TODO
         raise Exception('You need to implement this method')
+
+    def get_table_fitness(self):
+        """
+         Table fitness
+        """
+
+    def get_guest_fitness(self, guest, table_nr):
+        """
+         Guest fitness
+        """
+
+        guest_fitness = 0
+
+        table = self.representation[table_nr]
+
+        for seated_guest in table:
+            if seated_guest != guest:
+                guest_fitness += relationships_matrix[guest - 1][seated_guest - 1]
+        
+        return guest_fitness
+
 
 class Population:
     """
@@ -40,34 +63,26 @@ class Population:
     """
     def __init__(self, pop_size, nr_guests, nr_tables):
 
-
-        # population size
         self.nr_guests = nr_guests
 
-        # defining the optimization problem as a minimization or maximization problem
         self.nr_tables = nr_tables
+
+        self.guests_per_table = nr_guests // nr_tables
+
+        self.pop_size = pop_size
 
         self.individuals = []
 
-        nrs = [i for i in range(1, nr_guests + 1)]
+        guests = [i for i in range(1, nr_guests + 1)]
 
-        possible_tables = list(itertools.combinations(nrs, nr_guests // nr_tables))
+        while len(pop) < pop_size:
+            random.shuffle(guests)
 
-        table_distributions = list(itertools.combinations(possible_tables, nr_tables))
+            tables = frozenset(frozenset(guests[i:i + self.guests_per_table]) for i in range(0, len(guests), self.nr_tables))
 
-        valid_arrangements = []
+            pop.add(tables)
 
-        for combination in table_distributions:
-            unique_values = set(num for group in combination for num in group)
-            
-            if len(unique_values) == len(nrs): # confirm that there are no redundant solutions
-                        valid_arrangements.append(combination)
-
-        
-        selected_arrangements = sample(valid_arrangements, pop_size)
-
-
-        for arrangement in selected_arrangements:
+        for arrangement in pop:
             self.individuals.append(Individual(arrangement))
     
     def __str__(self):
@@ -128,7 +143,7 @@ class Population:
                 if random() < mut_prob:
                     offspring2 = mutate(offspring2) # mutation method is passed as argument
 
-                new_pop.append(self.get_type_of_individ()(representation = offspring1))
+                new_pop.append(Individual(representation = offspring1))
                 
                 # to check if we can insert both of the individuals or only one
                 if len(new_pop) < self.size:
