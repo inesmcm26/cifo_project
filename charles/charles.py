@@ -1,6 +1,5 @@
-from random import shuffle, sample, choice, random
+from random import random
 from copy import deepcopy
-import pandas as pd
 from data.relationships import relationships_matrix
 
 class Individual:
@@ -91,6 +90,8 @@ class Population:
 
         guests = [i for i in range(1, nr_guests + 1)]
 
+        pop = set()
+
         while len(pop) < pop_size:
             random.shuffle(guests)
 
@@ -105,10 +106,7 @@ class Population:
         """
          Population string representation
         """
-        # TODO
-        for individual in self.individuals:
-            print(individual)
-        # return str(self.individuals)
+        return str(self.individuals)
 
     def __len__(self):
         return len(self.individuals)
@@ -184,10 +182,3 @@ class Population:
 
             best_indiv = self.best_individual()
             print(f'Best individual in generation {i}: {best_indiv} Fitness: {best_indiv.get_fitness()}')
-
-
-
-
-pop = Population(10, 64, 8)
-
-print(pop)
