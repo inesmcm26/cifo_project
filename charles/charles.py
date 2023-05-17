@@ -10,11 +10,18 @@ class Individual:
     def __init__(self, arrangement = None):
 
         representation = []
-        
-        # arragement is a frozenset with frozensets of guests
-        # let's covert it into a list of sets
-        arrangement = list(arrangement)
-        representation = [set(table) for table in arrangement]
+
+        # TODO: justificar isto
+        if arrangement is not None:
+            # it is a frozenset of frozensets
+            if not isinstance(arrangement, list):
+                # arragement is a frozenset with frozensets of guests
+                # let's covert it into a list of sets
+                arrangement = list(arrangement)
+                representation = [set(table) for table in arrangement]
+            # it is already a list of sets
+            else:
+                representation = arrangement
 
         self.representation = representation
 
@@ -48,12 +55,17 @@ class Individual:
 
         table = self.representation[table_nr].copy()
 
+
+        print('Table: ', table)
+
         while len(table) > 1:
             guest = table.pop()
 
             for other_guest in table:
                 table_fitness += relationships_matrix[guest - 1][other_guest - 1]
+                print(f'Relationship between {guest} and {other_guest} : {relationships_matrix[guest - 1][other_guest - 1]}')
 
+        print('Table fitness ', table_fitness)
         return table_fitness
 
     def get_guest_fitness(self, guest, table_nr):
@@ -70,6 +82,28 @@ class Individual:
                 guest_fitness += relationships_matrix[guest - 1][seated_guest - 1]
         
         return guest_fitness
+    
+    def seat_guest(self, guest, table_nr):
+        """
+        Add guest to the table set
+        """
+        self.representation[table_nr].add(guest)
+
+    def append_table(self, table):
+        """
+        Adds a table to the end of the list of tables
+        """
+        self.representation.append(table)
+
+
+    def __get_item__(self, table_idx):
+        return self.representation[table_idx]
+    
+    def __set_item__(self, table_idx, table):
+        """
+        Add table set to list of tables
+        """
+        self.representation[table_idx] = table
 
 
 class Population:
