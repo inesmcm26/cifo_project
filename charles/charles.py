@@ -26,20 +26,36 @@ class Individual:
         return str(self.representation)
     
     def __len__(self):
-        # TODO
+        """
+         Returns de number of tables
+        """
         return len(self.representation)
     
     def get_fitness(self):
         """
          Solution fitness
         """
-        # TODO
-        raise Exception('You need to implement this method')
+        fitness = 0
+        for table_nr in range(len(self.representation)):
+            fitness += self.get_table_fitness(table_nr)
 
-    def get_table_fitness(self):
+        return fitness
+
+    def get_table_fitness(self, table_nr):
         """
          Table fitness
         """
+        table_fitness = 0
+
+        table = self.representation[table_nr].copy()
+
+        while len(table) > 1:
+            guest = table.pop()
+
+            for other_guest in table:
+                table_fitness += relationships_matrix[guest - 1][other_guest - 1]
+
+        return table_fitness
 
     def get_guest_fitness(self, guest, table_nr):
         """
