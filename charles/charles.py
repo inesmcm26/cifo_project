@@ -42,18 +42,18 @@ class Individual:
          Solution fitness
         """
         fitness = 0
-        for table_nr in range(len(self.representation)):
-            fitness += self.get_table_fitness(table_nr)
+        for table_idx in range(len(self.representation)):
+            fitness += self.get_table_fitness(table_idx)
 
         return fitness
 
-    def get_table_fitness(self, table_nr):
+    def get_table_fitness(self, table_idx):
         """
          Table fitness
         """
         table_fitness = 0
 
-        table = deepcopy(self.representation[table_nr])
+        table = deepcopy(self.representation[table_idx])
 
         while len(table) > 1:
             guest = table.pop()
@@ -63,14 +63,14 @@ class Individual:
 
         return table_fitness
 
-    def get_guest_fitness(self, guest, table_nr):
+    def get_guest_fitness(self, guest, table_idx):
         """
          Guest fitness
         """
 
         guest_fitness = 0
 
-        table = self.representation[table_nr]
+        table = self.representation[table_idx]
 
         for seated_guest in table:
             if seated_guest != guest:
@@ -78,11 +78,11 @@ class Individual:
         
         return guest_fitness
     
-    def seat_guest(self, guest, table_nr):
+    def seat_guest(self, guest, table_idx):
         """
         Add guest to the table set
         """
-        self.representation[table_nr].add(guest)
+        self.representation[table_idx].add(guest)
 
     def append_table(self, table):
         """
