@@ -1,4 +1,4 @@
-from random import random
+import random
 from copy import deepcopy
 from data.relationships import relationships_matrix
 
@@ -106,7 +106,7 @@ class Population:
         """
          Population string representation
         """
-        return str(self.individuals)
+        return '\n'.join([str(individual) for individual in self.individuals])
 
     def __len__(self):
         return len(self.individuals)
