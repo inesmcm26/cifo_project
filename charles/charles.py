@@ -53,19 +53,14 @@ class Individual:
         """
         table_fitness = 0
 
-        table = self.representation[table_nr].copy()
-
-
-        print('Table: ', table)
+        table = deepcopy(self.representation[table_nr])
 
         while len(table) > 1:
             guest = table.pop()
 
             for other_guest in table:
                 table_fitness += relationships_matrix[guest - 1][other_guest - 1]
-                print(f'Relationship between {guest} and {other_guest} : {relationships_matrix[guest - 1][other_guest - 1]}')
 
-        print('Table fitness ', table_fitness)
         return table_fitness
 
     def get_guest_fitness(self, guest, table_nr):
@@ -95,11 +90,10 @@ class Individual:
         """
         self.representation.append(table)
 
-
-    def __get_item__(self, table_idx):
+    def __getitem__(self, table_idx):
         return self.representation[table_idx]
     
-    def __set_item__(self, table_idx, table):
+    def __setitem__(self, table_idx, table):
         """
         Add table set to list of tables
         """
@@ -149,19 +143,16 @@ class Population:
         return self.individuals[position]
     
     def get_size(self):
-        return self.size
-
-    def get_optim(self):
-        return self.optim
+        return self.pop_size
 
     def get_individuals(self):
         return self.individuals
 
     def best_individual(self):
         """
-         Get the best individual of the population
+         Get the best individual of the population (Maximization Problem)
         """
-        return deepcopy(sorted(self.individuals, key = lambda x: x.get_fitness(), reverse = (self.optim == 'max'))[0])
+        return deepcopy(sorted(self.individuals, key = lambda x: x.get_fitness())[0])
     
     def evolve(self, n_generations, xo_prob, mut_prob, select, mutate, crossover, elitism):
         """
@@ -191,11 +182,11 @@ class Population:
                 if random() < mut_prob:
                     offspring2 = mutate(offspring2) # mutation method is passed as argument
 
-                new_pop.append(Individual(representation = offspring1))
+                new_pop.append(offspring1)
                 
                 # to check if we can insert both of the individuals or only one
                 if len(new_pop) < self.size:
-                    new_pop.append(self.get_type_of_individ()(representation = offspring2))
+                    new_pop.append(offspring2)
                 
             
             if elitism:
