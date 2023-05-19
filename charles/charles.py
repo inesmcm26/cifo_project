@@ -62,27 +62,18 @@ class Individual:
                 table_fitness += relationships_matrix[guest - 1][other_guest - 1]
 
         return table_fitness
-
-    def get_guest_fitness(self, guest, table_idx):
-        """
-         Guest fitness
-        """
-
-        guest_fitness = 0
-
-        table = self.representation[table_idx]
-
-        for seated_guest in table:
-            if seated_guest != guest:
-                guest_fitness += relationships_matrix[guest - 1][seated_guest - 1]
-        
-        return guest_fitness
     
     def seat_guest(self, guest, table_idx):
         """
         Add guest to the table set
         """
         self.representation[table_idx].add(guest)
+
+    def remove_guest(self, guest, table_idx):
+        """
+        Remove guest from the table set
+        """
+        self.representation[table_idx].remove(guest)
 
     def append_table(self, table):
         """
