@@ -29,10 +29,10 @@ def eager_breader_crossover(p1, p2):
         fit_table1 = p1.get_table_fitness(p1_idx)
         fit_table2 = p2.get_table_fitness(p2_idx)
         if fit_table1 >= fit_table2:
-            offspring.append_table(p1[p1_idx])
+            offspring.append_table(deepcopy(p1[p1_idx]))
             p1_idx += 1
         else:
-            offspring.append_table(p2[p2_idx])
+            offspring.append_table(deepcopy(p2[p2_idx]))
             p2_idx += 1
         
     # ----------------- Repair phase ----------------- #
