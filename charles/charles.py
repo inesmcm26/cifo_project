@@ -90,6 +90,12 @@ class Individual:
         """
         self.representation.append(table)
 
+    def remove_table(self, table_idx):
+        """
+        Removes a table from the list of tables
+        """
+        self.representation.pop(table_idx)
+
     def __getitem__(self, table_idx):
         return self.representation[table_idx]
     
