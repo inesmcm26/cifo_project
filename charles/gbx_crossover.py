@@ -1,35 +1,60 @@
 from random import sample, random
 import itertools
-from relationships import relationships_matrix
-from charles import Individual, Population
+from data.relationships import relationships_matrix
+from charles.charles import Individual, Population
+from copy import deepcopy
 
-
-def get_the_best_combination(persons_not_in_selected_tables, nr_persons_to_fill, table_to_fill):
+def get_the_best_combination(guests_to_seat, nr_guests_to_fill, table_to_fill, offspring):
     """
-    Get the best combination of persons to fill the table, based on the fitness of the table.
+    Get the best combination of guests to fill the table, based on the fitness of the table.
+    Input:  guests_to_set (set of integers)
+            nr_guests_to_fill (integer)
+            table_to_fill (list of integers)
+            offspring (Individual)
     Returns:
-        tuple: The best combination of persons to fill the table.
+        best_comb: The best combination of guests used to fill the table.
+        offspring: The offspring with the best table added.
     """
 
-    # Possible combinations of persons to fill the table
-    persons_combinations = list(itertools.combinations(persons_not_in_selected_tables, nr_persons_to_fill))
+    # Possible combinations of people to fill the table
+    guests_combinations = list(itertools.combinations(guests_to_seat, nr_guests_to_fill))
+    print('Guests combinations ', guests_combinations)
 
-    # Fitness history of the combinations
-    fitness_history = {}
+    best_fitness = 0
+    best_table = None
+    best_comb = None
 
-    # Test the fitness of persons from other tables
-    for comb in persons_combinations:
-        # Test the fitness of updated table
-        table_fitness = sum(
-            [relationships_matrix[guest - 1][other_guest - 1] for guest in comb for other_guest in comb if
-             guest != other_guest])
-        # Save the fitness of the combinations
-        fitness_history[comb] = table_fitness
+    print('Offspring', offspring)
 
-    # Get the combination with the best fitness
-    best_comb = max(fitness_history, key=fitness_history.get)
+    for comb in guests_combinations:
+        # Add guests to the table to fill
+        table_aux = table_to_fill | set(comb)
 
-    return best_comb
+        # Add table to offspring
+        offspring.append_table(table_aux)
+
+        # Calculate table fitness
+        table_fitness = offspring.get_table_fitness(-1)
+        print('Combination ', comb)
+        print('Table fitness ', table_fitness)
+        
+        if table_fitness >= best_fitness:
+            best_fitness = table_fitness
+            best_table = table_aux
+            best_comb = comb
+        
+        # Remove table from offspring
+        offspring.remove_table(-1)
+    
+    print('Offspring should be equal', offspring)
+    
+    # Add table with highest fitness to offspring
+    offspring.append_table(best_table)
+
+    print('Offspring after inserting guests', offspring)
+    print('Best comb ', best_comb)
+
+    return best_comb, offspring
 
 
 def get_crossover_point():
@@ -51,7 +76,7 @@ def get_crossover_point():
     return crossover_point
 
 
-def group_based_crossover(parent1, parent2):
+def gbx_crossover(parent1, parent2):
     """
     Applies group based crossover to two parents to create an offspring.
 
@@ -62,6 +87,8 @@ def group_based_crossover(parent1, parent2):
     Returns:
         offspring (Individual): An Individual object representing the offspring.
     """
+    # Nr of seats per table
+    seats_per_table = len(parent1[0])
 
     # Get the crossover point
     crossover_point = get_crossover_point()
@@ -69,93 +96,94 @@ def group_based_crossover(parent1, parent2):
     # Get the number of tables to keep from the first parent
     num_tables_to_keep = int(crossover_point * len(parent1))
 
-    # Get the tables to keep from the first parent
-    tables_to_keep = sample(parent1.representation, num_tables_to_keep)
+    # Get the tables to keep from the first parent and add them to the offspring
+    # offspring = sample(deepcopy(parent1).representation, num_tables_to_keep)
+    offspring = Individual(sample(deepcopy(parent1).representation, num_tables_to_keep))
 
-    # Get the persons of the tables already selected
-    persons_in_selected_tables = {person for table in tables_to_keep for person in table}
+    # Get the people of the tables already selected
+    seated_guests = {guest for table in offspring for guest in table}
+    
+    # Get people yet to be seated
+    guests_to_seat = set(range(1, len(parent1) * seats_per_table + 1)) - seated_guests
 
-    # Get the persons not in the selected tables
-    persons_not_in_selected_tables = {person for table in parent1.representation for person in table if
-                               person not in persons_in_selected_tables}
-
-    # Remove the persons in the selected tables from the second parent
-    parent2_copy = [table.difference(persons_in_selected_tables) for table in parent2.representation]
-
-    # Create a new offspring
-    offspring = list(tables_to_keep)
-
-    # Full table size
-    full_table_size = len(parent1.representation[0])
+    # Remove the people in the selected tables from the second parent
+    parent2_copy = [table.difference(seated_guests) for table in deepcopy(parent2)]
 
     print("parent1 selected tables")
-    print(tables_to_keep)
-    print("parent2")
-    print(parent2)
+    print(offspring)
+    print("parent2_copy")
+    print(parent2_copy)
+    print('guests_to_seat')
+    print(guests_to_seat)
 
-    # While there are persons not selected to fill the offspring
-    while len(persons_not_in_selected_tables) > 0:
+    # While there are guests left to seat
+    while len(guests_to_seat) > 0:
 
-        # Sort the tables of the second parent by size
-        parent2_copy.sort(key=len)
+        # Sort the tables of the second parent by size in descending order
+        parent2_copy.sort(key=len, reverse=True)
 
         print('\n')
         print("parent2_copy")
         print(parent2_copy)
 
-        # Get the next table to fill
-        table_to_fill = next((t for t in parent2_copy if len(t) < full_table_size and len(t) > 0), None)
+        table_to_fill = parent2_copy[0]
 
-        print("table_to_fill")
-        print(table_to_fill)
+        print('table to fill ', table_to_fill)
 
-        # If there is no table available to fill, break the loop
-        if not table_to_fill:
-            break
+        print('offspring ', offspring)
 
-        # Necessary persons to fill the table
-        nr_persons_to_fill = full_table_size - len(table_to_fill)
+        # If table if full, remove it from the second parent copy and add it to the offspring
+        if len(table_to_fill) == seats_per_table:
+            # Add table to offspring
+            offspring.append_table(table_to_fill)
 
-        # Exclude from the not selected persons the persons in the table to fill
-        persons_not_in_selected_tables = persons_not_in_selected_tables.difference(table_to_fill)
+            # Exclude people seated in the table from the people to seat
+            guests_to_seat = guests_to_seat.difference(table_to_fill)
 
-        print("persons_not_in_selected_tables")
-        print(persons_not_in_selected_tables)
+            # Remove table from the second parent copy
+            parent2_copy.remove(table_to_fill)
 
-        # Get the best combination of persons to fill the table
-        best_comb = get_the_best_combination(persons_not_in_selected_tables, nr_persons_to_fill, table_to_fill)
+            print('offspring ', offspring)
+            print('parent2_copy ', parent2_copy)
 
-        # Create the new table
-        new_table = set(best_comb) | table_to_fill
+        # If table is not full, it needs to be filled with people from other tables
+        else:
+            # Number of empty seats in the table
+            nr_guests_to_fill = seats_per_table - len(table_to_fill)
+            
+            # Exclude people seated in the new table from the people to seat
+            guests_to_seat = guests_to_seat.difference(table_to_fill)
 
-        print("new_table")
-        print(new_table)
+            print("guests_to_seat")
+            print(guests_to_seat)
 
-        # Remove the persons of the combination from the persons not selected
-        persons_not_in_selected_tables -= set(best_comb)
+            # Get the best combination of guests to fill the table and add it to the offspring
+            # Also return the best combination of guests so they can be removed from the people to seat
+            best_comb, offspring = get_the_best_combination(guests_to_seat, nr_guests_to_fill, table_to_fill, offspring)
+            
+            # Remove the people of the combination from the people not selected
+            guests_to_seat -= set(best_comb)
 
-        # Remove the persons of the combination from the old table of second parent copy
-        parent2_copy = [p - set(best_comb) for p in parent2_copy]
+            print('Guests to seat after removing best comb ', guests_to_seat)
 
-        # Add the persons of the combination to the new table of the second parent copy
-        parent2_copy[parent2_copy.index(table_to_fill)] = new_table
+            # Remove the guests added to table_to_fill from the other tables of parent2
+            parent2_copy = [table - set(best_comb) for table in parent2_copy]
 
-        print("parent2_copy")
-        print(parent2_copy)
+            print('parent2_copy after removing best comb ', parent2_copy)
 
-        # Add the new table to the offspring
-        offspring.append(new_table)
-        print("offspring")
-        print(offspring)
+            # Remove table from the second parent
+            parent2_copy.pop(0)
 
-    return Individual(offspring)
+            print('parent2_copy after removing table to fill ', parent2_copy)
+
+    return offspring
 
 
 #ind1 = Individual(frozenset({frozenset({1, 7, 5}), frozenset({6, 3, 8}), frozenset({2, 4, 9}), frozenset({10, 11, 12})}))
 #ind2 = Individual(frozenset({frozenset({4, 6, 9}), frozenset({12, 7, 8}), frozenset({10, 3, 5}), frozenset({1, 2, 11})}))
 
-pop=Population(2,64,8)
+# pop=Population(2,64,8)
 
-ind1, ind2 = pop.get_individuals()
+# ind1, ind2 = pop.get_individuals()
 
-a = group_based_crossover(ind1, ind2)
+# a = group_based_crossover(ind1, ind2)
