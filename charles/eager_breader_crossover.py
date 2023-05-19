@@ -76,6 +76,7 @@ def eager_breader_crossover(p1, p2):
                 # Seat guest at the table
                 off_aux.seat_guest(guest, table_idx)
 
+                # TODO !
                 # Check if guest has higher fitness in that table
                 if off_aux.get_guest_fitness(guest, table_idx) > max_fitness:
                     max_fitness = off_aux.get_guest_fitness(guest, table_idx)
