@@ -62,6 +62,25 @@ class Individual:
                 table_fitness += relationships_matrix[guest - 1][other_guest - 1]
 
         return table_fitness
+
+    def get_guest_fitness(self, guest, table_idx):
+        """
+         Guest fitness
+        """
+
+
+        guest_fitness = 0
+
+        table = self.representation[table_idx]
+        
+        if guest not in table:
+            raise Exception('Guest not in table')
+
+        for seated_guest in table:
+            if seated_guest != guest:
+                guest_fitness += relationships_matrix[guest - 1][seated_guest - 1]
+        
+        return guest_fitness
     
     def seat_guest(self, guest, table_idx):
         """
