@@ -34,6 +34,8 @@ def eager_breader_crossover(p1, p2):
         else:
             offspring.append_table(deepcopy(p2[p2_idx]))
             p2_idx += 1
+
+    print('Offspring', offspring)
         
     # ----------------- Repair phase ----------------- #
 
@@ -46,35 +48,35 @@ def eager_breader_crossover(p1, p2):
     # Remove guest from table where he has lowest fitness
     for guest in repeated_guests:
         # Guest fitness in each table
-        table_fitnesses = []
+        guest_fitnesses = []
         tables_idx = []
+
+        print('Guest ', guest)
 
         for table_idx, table in enumerate(offspring):
             if guest in table:
 
-                # Get table without guest
-                offspring.remove_guest(guest, table_idx)
-
                 # Get fitness of the table without the guest
-                table_fitnesses.append(offspring.get_table_fitness(table_idx))
-
-                # Seat guest again
-                offspring.seat_guest(guest, table_idx)
+                guest_fitnesses.append(offspring.get_guest_fitness(guest, table_idx))
 
                 # Save table index
                 tables_idx.append(table_idx)
 
-        # Remove guest from the table where it contributes the less to fitness
-        # If the guest contributes less to table 0, remove it from table 0
-        if table_fitnesses[0] >= table_fitnesses[1]:
-            offspring[tables_idx[0]].remove(guest)
-        # If the guest contributes less to table 1, remove it from table 1
-        else:
-            offspring[tables_idx[1]].remove(guest)
+        print('table fitnesses ', guest_fitnesses)
+        print('tables_idx ', tables_idx)
 
+        # Remove guest from the table where it contributes the less to fitness
+        if guest_fitnesses[0] >= guest_fitnesses[1]:
+            offspring[tables_idx[1]].remove(guest)
+        else:
+            offspring[tables_idx[0]].remove(guest)
+
+    print('Offspring after removing ', offspring)
     
     # Fill the empty seats
     not_seated_guests = [guest for guest in range(1, nr_guests + 1) if guest not in guest_counts]
+
+    print('not seated guests ', not_seated_guests)
 
     for table_idx in range(len(offspring)):
         # Table with empty seats
@@ -88,6 +90,9 @@ def eager_breader_crossover(p1, p2):
                 # Get table fitness
                 table_fitness = offspring.get_table_fitness(table_idx)
 
+                print('guest ', guest)
+                print('table fitness ', table_fitness)
+
                 # Check if table has the highest fitness with the new guest
                 if table_fitness > max_fitness:
                     max_fitness = table_fitness
@@ -98,7 +103,8 @@ def eager_breader_crossover(p1, p2):
 
             # Seat the guest that has the highest fitness
             offspring.seat_guest(guest_max_fitness, table_idx)
-
+            
+            print('Offspring after seating ', offspring)
             # Remove guest from the list of not seated guests
             not_seated_guests.remove(guest_max_fitness)
 
