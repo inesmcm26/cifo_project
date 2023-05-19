@@ -1,7 +1,6 @@
 from random import sample, random
 import itertools
-from data.relationships import relationships_matrix
-from charles.charles import Individual, Population
+from charles.charles import Individual
 from copy import deepcopy
 
 def get_the_best_combination(guests_to_seat, nr_guests_to_fill, table_to_fill, offspring):
@@ -76,83 +75,81 @@ def get_crossover_point():
     return crossover_point
 
 
-def gbx_crossover(parent1, parent2):
+def gbx_crossover(p1, p2):
     """
-    Applies group based crossover to two parents to create an offspring.
+    Applies group based crossover to two ps to create an offspring.
 
     Args:
-        parent1 (Individual): An Individual object representing the first parent.
-        parent2 (Individual): An Individual object representing the second parent.
+        p1 (Individual): An Individual object representing the first parent.
+        p2 (Individual): An Individual object representing the second parent.
 
     Returns:
         offspring (Individual): An Individual object representing the offspring.
     """
     # Nr of seats per table
-    seats_per_table = len(parent1[0])
+    seats_per_table = len(p1[0])
 
     # Get the crossover point
     crossover_point = get_crossover_point()
 
-    # Get the number of tables to keep from the first parent
-    num_tables_to_keep = int(crossover_point * len(parent1))
+    # Get the number of tables to keep from the first p
+    num_tables_to_keep = int(crossover_point * len(p1))
 
-    # Get the tables to keep from the first parent and add them to the offspring
-    # offspring = sample(deepcopy(parent1).representation, num_tables_to_keep)
-    offspring = Individual(sample(deepcopy(parent1).representation, num_tables_to_keep))
+    # Get the tables to keep from the first p and add them to the offspring
+    # offspring = sample(deepcopy(p1).representation, num_tables_to_keep)
+    offspring = Individual(sample(deepcopy(p1).representation, num_tables_to_keep))
 
     # Get the people of the tables already selected
     seated_guests = {guest for table in offspring for guest in table}
     
     # Get people yet to be seated
-    guests_to_seat = set(range(1, len(parent1) * seats_per_table + 1)) - seated_guests
+    guests_to_seat = set(range(1, len(p1) * seats_per_table + 1)) - seated_guests
 
-    # Remove the people in the selected tables from the second parent
-    parent2_copy = [table.difference(seated_guests) for table in deepcopy(parent2)]
+    # Remove the people in the selected tables from the second p
+    p2_copy = [table.difference(seated_guests) for table in deepcopy(p2)]
 
-    print("parent1 selected tables")
+    print("p1 selected tables")
     print(offspring)
-    print("parent2_copy")
-    print(parent2_copy)
+    print("p2_copy")
+    print(p2_copy)
     print('guests_to_seat')
     print(guests_to_seat)
 
     # While there are guests left to seat
     while len(guests_to_seat) > 0:
 
-        # Sort the tables of the second parent by size in descending order
-        parent2_copy.sort(key=len, reverse=True)
+        # Sort the tables of the second p by size in descending order
+        p2_copy.sort(key=len, reverse=True)
 
         print('\n')
-        print("parent2_copy")
-        print(parent2_copy)
+        print("p2_copy")
+        print(p2_copy)
 
-        table_to_fill = parent2_copy[0]
+        table_to_fill = p2_copy[0]
+
+        # Exclude people seated in the table from the people to seat
+        guests_to_seat = guests_to_seat.difference(table_to_fill)
 
         print('table to fill ', table_to_fill)
 
         print('offspring ', offspring)
 
-        # If table if full, remove it from the second parent copy and add it to the offspring
+        # If table if full, remove it from the second p copy and add it to the offspring
         if len(table_to_fill) == seats_per_table:
             # Add table to offspring
             offspring.append_table(table_to_fill)
 
-            # Exclude people seated in the table from the people to seat
-            guests_to_seat = guests_to_seat.difference(table_to_fill)
 
-            # Remove table from the second parent copy
-            parent2_copy.remove(table_to_fill)
+            # Remove table from the second p copy
+            p2_copy.remove(table_to_fill)
 
             print('offspring ', offspring)
-            print('parent2_copy ', parent2_copy)
+            print('p2_copy ', p2_copy)
 
         # If table is not full, it needs to be filled with people from other tables
         else:
             # Number of empty seats in the table
             nr_guests_to_fill = seats_per_table - len(table_to_fill)
-            
-            # Exclude people seated in the new table from the people to seat
-            guests_to_seat = guests_to_seat.difference(table_to_fill)
 
             print("guests_to_seat")
             print(guests_to_seat)
@@ -166,15 +163,15 @@ def gbx_crossover(parent1, parent2):
 
             print('Guests to seat after removing best comb ', guests_to_seat)
 
-            # Remove the guests added to table_to_fill from the other tables of parent2
-            parent2_copy = [table - set(best_comb) for table in parent2_copy]
+            # Remove the guests added to table_to_fill from the other tables of p2
+            p2_copy = [table - set(best_comb) for table in p2_copy]
 
-            print('parent2_copy after removing best comb ', parent2_copy)
+            print('p2_copy after removing best comb ', p2_copy)
 
-            # Remove table from the second parent
-            parent2_copy.pop(0)
+            # Remove table from the second p
+            p2_copy.pop(0)
 
-            print('parent2_copy after removing table to fill ', parent2_copy)
+            print('p2_copy after removing table to fill ', p2_copy)
 
     return offspring
 
