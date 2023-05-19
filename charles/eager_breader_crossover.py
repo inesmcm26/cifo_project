@@ -46,19 +46,31 @@ def eager_breader_crossover(p1, p2):
     # Remove guest from table where he has lowest fitness
     for guest in repeated_guests:
         # Guest fitness in each table
-        guest_fitnesses = []
+        table_fitnesses = []
         tables_idx = []
 
         for table_idx, table in enumerate(offspring):
             if guest in table:
-                guest_fitnesses.append(offspring.get_guest_fitness(guest, table_idx))
+
+                # Get table without guest
+                offspring.remove_guest(guest, table_idx)
+
+                # Get fitness of the table without the guest
+                table_fitnesses.append(offspring.get_table_fitness(table_idx))
+
+                # Seat guest again
+                offspring.seat_guest(guest, table_idx)
+
+                # Save table index
                 tables_idx.append(table_idx)
 
-        # Remove guest from the table where it has lowest fitness
-        if guest_fitnesses[0] >= guest_fitnesses[1]:
-            offspring[tables_idx[1]].remove(guest)
-        else:
+        # Remove guest from the table where it contributes the less to fitness
+        # If the guest contributes less to table 0, remove it from table 0
+        if table_fitnesses[0] >= table_fitnesses[1]:
             offspring[tables_idx[0]].remove(guest)
+        # If the guest contributes less to table 1, remove it from table 1
+        else:
+            offspring[tables_idx[1]].remove(guest)
 
     
     # Fill the empty seats
@@ -70,17 +82,19 @@ def eager_breader_crossover(p1, p2):
             max_fitness = -1
             guest_max_fitness = None
             for guest in not_seated_guests:
-                # TODO: Não sei se é melhor maneira
-                off_aux = deepcopy(offspring)
-
                 # Seat guest at the table
-                off_aux.seat_guest(guest, table_idx)
+                offspring.seat_guest(guest, table_idx)
 
-                # TODO !
-                # Check if guest has higher fitness in that table
-                if off_aux.get_guest_fitness(guest, table_idx) > max_fitness:
-                    max_fitness = off_aux.get_guest_fitness(guest, table_idx)
+                # Get table fitness
+                table_fitness = offspring.get_table_fitness(table_idx)
+
+                # Check if table has the highest fitness with the new guest
+                if table_fitness > max_fitness:
+                    max_fitness = table_fitness
                     guest_max_fitness = guest
+
+                # Remove guest from the table
+                offspring.remove_guest(guest, table_idx)
 
             # Seat the guest that has the highest fitness
             offspring.seat_guest(guest_max_fitness, table_idx)
