@@ -22,13 +22,16 @@ def swap_mutation(individual):
     return individual
 
 def merge_and_split(individual):
-    # TODO
-    """
-    The Merge and Split, also known as Division and Combination operator,
-    works in two phases. In the first stage, it selects two groups and transforms
-    them into a single one. Then, in the second stage, it picks a group to distribute
-    its items between two distinct groups.
-    """
+
+    table_idx = random.sample(range(len(individual)), 2) #selects two random tables
+    mixed_tables= individual[table_idx[0]] + individual[table_idx[1]]
+
+    fst_table = random.sample(mixed_tables, len(individual[0]))
+    snd_table = [person for person in mixed_tables if person not in fst_table]
+
+    individual[table_idx[0]]= fst_table
+    individual[table_idx[1]] = snd_table
+
     return individual
 
 def the_hop(individual):
@@ -45,3 +48,4 @@ def dream_team(individual):
     escolher as pessoas com maior relação nas duas mesas e mantê-las
     shuffle das outras
     """
+    return
