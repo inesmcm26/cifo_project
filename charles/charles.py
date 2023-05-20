@@ -94,6 +94,16 @@ class Individual:
         
         return guest_fitness
     
+    def get_best_table_mate(self, guest, table_idx):
+        """
+        Get the guest with the best relationship with the guest
+        """
+        table_matrix = relationships_matrix[guest - 1,[other_guest - 1
+                                                for other_guest in self.representation[table_idx] if other_guest != guest]]
+
+        return max(table_matrix)
+    
+    
     def seat_guest(self, guest, table_idx):
         """
         Add guest to the table set
