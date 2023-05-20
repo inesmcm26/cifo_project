@@ -1,4 +1,4 @@
-from random import sample, choice
+from random import sample, choice, shuffle
 
 def swap_mutation(individual):
     """
@@ -81,14 +81,43 @@ def the_hop(individual):
 
 def dream_team(individual):
     """
-    escolher as pessoas com maior relação nas duas mesas e mantê-las
-    shuffle das outras
+    For each table, keep the guests with the best relationship in the table and
+    shuffle the rest of the guests among the tables.
     """
-    return
 
+    seats_per_table = len(individual[0])
 
-sets_list = [{1, 2, 3}, {4, 5, 6}, {7, 8, 9}]
+    guests_to_shuffle = []
 
-muta = merge_and_split(sets_list)
+    for table_idx in range(len(individual)):
+        table_best_relationships = {}
+        for guest in individual[table_idx]:
+            table_best_relationships[guest] = individual.get_best_table_mate(guest, table_idx)
 
-print(muta)
+        max_relationship = max(table_best_relationships.values())
+
+        guests_to_remove = [guest for guest in individual[table_idx] if table_best_relationships[guest] != max_relationship]
+
+        # Keep only the guests with max_relationship
+        individual[table_idx] = set(guest for guest in individual[table_idx] if guest not in guests_to_remove)
+
+        # Add the guests to shuffle
+        guests_to_shuffle = guests_to_shuffle + guests_to_remove
+
+    # Suffle guests
+    shuffle(guests_to_shuffle)
+
+    # Seat guests in the suffled order
+    table_idx = 0
+
+    while len(guests_to_shuffle) > 0:
+        # get the first guest left to seat
+        guest_to_seat = guests_to_shuffle.pop(0)
+        
+        # If there are no empty setas, go to next table with available seats
+        while len(individual[table_idx]) >= seats_per_table:
+            table_idx += 1
+
+        individual.seat_guest(guest_to_seat, table_idx)
+
+    return individual
