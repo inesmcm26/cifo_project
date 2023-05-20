@@ -22,15 +22,27 @@ def swap_mutation(individual):
     return individual
 
 def merge_and_split(individual):
+"""
+    Merge and split mutation for a GA individual
 
-    table_idx = sample(range(len(individual)), 2) #selects two random tables
-    mixed_tables= individual[table_idx[0]] + individual[table_idx[1]]
+    Args: individual (Individual): A GA individual from charles.py
 
-    fst_table = sample(mixed_tables, len(individual[0]))
+    Returns: Individual: Mutated Individual
+"""
+
+    # Selects two random tables
+    table_idx = sample(range(len(individual)), 2)
+
+    # Merges the two tables
+    mixed_tables= individual[table_idx[0]] | individual[table_idx[1]]
+
+    # Splits the merged table into two new tables
+    fst_table = sample(list(mixed_tables), len(individual[0]))
     snd_table = [person for person in mixed_tables if person not in fst_table]
 
-    individual[table_idx[0]]= fst_table
-    individual[table_idx[1]] = snd_table
+    # Updates the individual
+    individual[table_idx[0]]= set(fst_table)
+    individual[table_idx[1]] = set(snd_table)
 
     return individual
 
@@ -73,3 +85,10 @@ def dream_team(individual):
     shuffle das outras
     """
     return
+
+
+sets_list = [{1, 2, 3}, {4, 5, 6}, {7, 8, 9}]
+
+muta = merge_and_split(sets_list)
+
+print(muta)
