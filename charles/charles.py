@@ -1,6 +1,18 @@
 import random
 from copy import deepcopy
-from data.relationships import relationships_matrix
+import os
+import sys
+
+# Add the parent folder to the sys.path
+parent_folder = os.path.abspath(os.path.join(os.getcwd(), ".."))
+sys.path.append(parent_folder)
+
+# Import the variable from data.py
+from data import relationships
+
+# Access the variable
+relationships_matrix = relationships.relationships_matrix
+
 
 class Individual:
     """
