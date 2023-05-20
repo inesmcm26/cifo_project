@@ -20,13 +20,14 @@ def get_best_combination(guests_to_seat, nr_guests_to_fill, table_to_fill, offsp
 
     # Possible combinations of people to fill the table
     guests_combinations = list(itertools.combinations(guests_to_seat, nr_guests_to_fill))
-    print('Guests combinations ', guests_combinations)
 
-    best_fitness = 0
+    # print('Possible combinations', guests_combinations)
+
+    best_fitness = -100000
     best_table = None
     best_comb = None
 
-    print('Offspring', offspring)
+    # print('Guests to seat', guests_to_seat)
 
     for comb in guests_combinations:
         # Add guests to the table to fill
@@ -37,8 +38,8 @@ def get_best_combination(guests_to_seat, nr_guests_to_fill, table_to_fill, offsp
 
         # Calculate table fitness
         table_fitness = offspring.get_table_fitness(-1)
-        print('Combination ', comb)
-        print('Table fitness ', table_fitness)
+
+        # print('Table fitness', table_fitness)
         
         if table_fitness >= best_fitness:
             best_fitness = table_fitness
@@ -47,14 +48,13 @@ def get_best_combination(guests_to_seat, nr_guests_to_fill, table_to_fill, offsp
         
         # Remove table from offspring
         offspring.remove_table(-1)
-    
-    print('Offspring should be equal', offspring)
+
+    # print('Best table found', best_table)
+    # print('Best comb found', best_comb)
     
     # Add table with highest fitness to offspring
     offspring.append_table(best_table)
 
-    print('Offspring after inserting guests', offspring)
-    print('Best comb ', best_comb)
 
     return best_comb, offspring
 
@@ -108,15 +108,9 @@ def gbx_crossover(p1, p2):
     # Get people yet to be seated
     guests_to_seat = set(range(1, len(p1) * seats_per_table + 1)) - seated_guests
 
-    # Remove the people in the selected tables from the second p
+    # Remove the people in the selected tables from the second parent
     p2_copy = [table.difference(seated_guests) for table in deepcopy(p2)]
 
-    print("p1 selected tables")
-    print(offspring)
-    print("p2_copy")
-    print(p2_copy)
-    print('guests_to_seat')
-    print(guests_to_seat)
 
     # While there are guests left to seat
     while len(guests_to_seat) > 0:
@@ -124,59 +118,48 @@ def gbx_crossover(p1, p2):
         # Sort the tables of the second p by size in descending order
         p2_copy.sort(key=len, reverse=True)
 
-        print('\n')
-        print("p2_copy")
-        print(p2_copy)
-
         table_to_fill = p2_copy[0]
+
+        # print('Table to fill', table_to_fill)
 
         # Exclude people seated in the table from the people to seat
         guests_to_seat = guests_to_seat.difference(table_to_fill)
 
-        print('table to fill ', table_to_fill)
-
-        print('offspring ', offspring)
-
         # If table if full, remove it from the second p copy and add it to the offspring
         if len(table_to_fill) == seats_per_table:
+
+            # print('Mesa completa')
             # Add table to offspring
             offspring.append_table(table_to_fill)
-
 
             # Remove table from the second p copy
             p2_copy.remove(table_to_fill)
 
-            print('offspring ', offspring)
-            print('p2_copy ', p2_copy)
+            # print('P2 depois de tirar mesa ', p2_copy)
 
         # If table is not full, it needs to be filled with people from other tables
         else:
             # Number of empty seats in the table
             nr_guests_to_fill = seats_per_table - len(table_to_fill)
 
-            print("guests_to_seat")
-            print(guests_to_seat)
+            # print(f'Mesa incompleta com {nr_guests_to_fill} lugares por preencher')
 
             # Get the best combination of guests to fill the table and add it to the offspring
             # Also return the best combination of guests so they can be removed from the people to seat
             best_comb, offspring = get_best_combination(guests_to_seat, nr_guests_to_fill, table_to_fill, offspring)
-            
+
             # Remove the people of the combination from the people not selected
             guests_to_seat -= set(best_comb)
 
-            print('Guests to seat after removing best comb ', guests_to_seat)
+            # print('Guests left to seat', guests_to_seat)
 
             # Remove the guests added to table_to_fill from the other tables of p2
             p2_copy = [table - set(best_comb) for table in p2_copy]
 
-            print('p2_copy after removing best comb ', p2_copy)
-
             # Remove table from the second p
             p2_copy.pop(0)
 
-            print('p2_copy after removing table to fill ', p2_copy)
-
-    return offspring
+    return offspring, None
 
 def eager_breader_crossover(p1, p2):
     """
@@ -211,7 +194,6 @@ def eager_breader_crossover(p1, p2):
             offspring.append_table(deepcopy(p2[p2_idx]))
             p2_idx += 1
 
-    print('Offspring', offspring)
         
     # ----------------- Repair phase ----------------- #
 
@@ -227,7 +209,6 @@ def eager_breader_crossover(p1, p2):
         guest_fitnesses = []
         tables_idx = []
 
-        print('Guest ', guest)
 
         for table_idx, table in enumerate(offspring):
             if guest in table:
@@ -238,8 +219,6 @@ def eager_breader_crossover(p1, p2):
                 # Save table index
                 tables_idx.append(table_idx)
 
-        print('table fitnesses ', guest_fitnesses)
-        print('tables_idx ', tables_idx)
 
         # Remove guest from the table where it contributes the less to fitness
         if guest_fitnesses[0] >= guest_fitnesses[1]:
@@ -247,17 +226,15 @@ def eager_breader_crossover(p1, p2):
         else:
             offspring[tables_idx[0]].remove(guest)
 
-    print('Offspring after removing ', offspring)
     
     # Fill the empty seats
     not_seated_guests = [guest for guest in range(1, nr_guests + 1) if guest not in guest_counts]
 
-    print('not seated guests ', not_seated_guests)
 
     for table_idx in range(len(offspring)):
         # Table with empty seats
         while len(offspring[table_idx]) < guests_per_table:
-            max_fitness = -1
+            max_fitness = -100000
             guest_max_fitness = None
             for guest in not_seated_guests:
                 # Seat guest at the table
@@ -266,8 +243,6 @@ def eager_breader_crossover(p1, p2):
                 # Get table fitness
                 table_fitness = offspring.get_table_fitness(table_idx)
 
-                print('guest ', guest)
-                print('table fitness ', table_fitness)
 
                 # Check if table has the highest fitness with the new guest
                 if table_fitness > max_fitness:
@@ -280,13 +255,12 @@ def eager_breader_crossover(p1, p2):
             # Seat the guest that has the highest fitness
             offspring.seat_guest(guest_max_fitness, table_idx)
             
-            print('Offspring after seating ', offspring)
             # Remove guest from the list of not seated guests
             not_seated_guests.remove(guest_max_fitness)
 
-    return offspring
+    return offspring, None
 
-def my_custom_crossover (p1, p2):
+def my_custom_crossover(p1, p2):
 
     # Initialize offspring1 and offspring2
     offspring1 = [set() for _ in range(len(p1))]
@@ -300,30 +274,24 @@ def my_custom_crossover (p1, p2):
                                        random.randint(round(nr_guests / 3),
                                                       round(nr_guests / 2)))  # get guests to keep on the same seat
 
-        print('Guests to keep from ', p1, ':', guests_to_keep)
         # Add guests to offspring based on p1
         for guest in guests_to_keep:
             for idx, table in enumerate(p1):
                 if guest in table:
                     offspring[idx].add(guest)
 
-        print('Offspring after adding guests:', offspring)
 
         offspring_idx = 0
 
         # Add guests to offspring based on p2
         for table in p2:
-            print('P2 table:', table)
             for guest in table:
                 if guest not in guests_to_keep:
-                    print('Guest to add:', guest)
                     if len(offspring[offspring_idx]) < len(table) or offspring_idx == (len(p2) - 1):
                         offspring[offspring_idx].add(guest)
-                        print('Offspring after adding guest:', offspring)
                     else:
                         offspring_idx += 1
                         offspring[offspring_idx].add(guest)
-                        print('Offspring after adding guest on next table:', offspring)
                         
     return Individual(offspring1), Individual(offspring2)
 
