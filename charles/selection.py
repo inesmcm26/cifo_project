@@ -30,6 +30,11 @@ def fitness_proportionate_selection(population):
 
     else:
         raise Exception("No optimization specified (min or max).")
+    
+def rank_selection(population):
+    """
+    Rank selection implementation.
+    """
 
 def tournament_selection(population, tournament_size = 4):
     """
