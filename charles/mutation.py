@@ -16,8 +16,8 @@ def swap_mutation(individual):
     guest2 = individual[table_idx[1]].pop()
 
     # Swap
-    individual[table_idx[0]].add(guest2)
-    individual[table_idx[1]].add(guest1)
+    individual.seat_guest(table_idx[0], guest2)
+    individual.seat_guest(table_idx[1], guest1)
     
     return individual
 

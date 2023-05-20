@@ -191,7 +191,8 @@ class Population:
                     # crossover method is passed as argument
                     offspring1, offspring2 = crossover(p1, p2)
                 else:
-                    offspring1, offspring2 = p1, p2
+                    # TODO: replication = copy of the parents
+                    offspring1, offspring2 = deepcopy(p1), deepcopy(p2)
 
                 if random() < mut_prob:
                     offspring1 = mutate(offspring1) # mutation method is passed as argument
