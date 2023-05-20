@@ -1,4 +1,4 @@
-import random
+from random import sample, choice
 
 def swap_mutation(individual):
     """
@@ -9,7 +9,7 @@ def swap_mutation(individual):
     Returns: Individual: Mutated Individual
     """
 
-    table_idx = random.sample(range(len(individual)), 2)
+    table_idx = sample(range(len(individual)), 2)
 
     # Get two guests
     guest1 = individual[table_idx[0]].pop()
@@ -23,10 +23,10 @@ def swap_mutation(individual):
 
 def merge_and_split(individual):
 
-    table_idx = random.sample(range(len(individual)), 2) #selects two random tables
+    table_idx = sample(range(len(individual)), 2) #selects two random tables
     mixed_tables= individual[table_idx[0]] + individual[table_idx[1]]
 
-    fst_table = random.sample(mixed_tables, len(individual[0]))
+    fst_table = sample(mixed_tables, len(individual[0]))
     snd_table = [person for person in mixed_tables if person not in fst_table]
 
     individual[table_idx[0]]= fst_table
@@ -35,12 +35,36 @@ def merge_and_split(individual):
     return individual
 
 def the_hop(individual):
-    # TODO
     """
-    The Chega Pra Lá operator, also known as the shift operator, shifts everyone in the tables one
-    seat to the left or to the right.
-    
+    The Hop operator, also known as the shift operator, shifts everyone in the tables one
+    seat to the right.
+
     """
+
+    # Create a list to keep track of persons that have been moved
+    moved_persons = []
+
+    # Iterate over each table
+    for i in range(len(individual)):
+        current_table = individual[i]
+
+        # Filter out persons that have already been moved
+        available_persons = list(current_table - set(moved_persons))
+
+        # Choose a random person from the available persons in the current table
+        random_person = choice(available_persons)
+
+        # Remove the random person from the current table
+        current_table.remove(random_person)
+
+        # Add the random person to the moved_persons list
+        moved_persons.append(random_person)
+
+        # Move the random person to the next person
+        next_table_index = (i + 1) % len(individual)
+        next_table = individual[next_table_index]
+        next_table.add(random_person)
+
     return individual
 
 def dream_team(individual):
