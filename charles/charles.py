@@ -1,7 +1,8 @@
-import random
+from random import random, shuffle
 from copy import deepcopy
 import os
 import sys
+import time
 
 # Add the parent folder to the sys.path
 parent_folder = os.path.abspath(os.path.join(os.getcwd(), ".."))
@@ -159,7 +160,7 @@ class Population:
         pop = set()
 
         while len(pop) < pop_size:
-            random.shuffle(guests)
+            shuffle(guests)
 
             tables = frozenset(frozenset(guests[i:i + self.guests_per_table]) for i in range(0, len(guests), self.nr_tables))
 
@@ -190,13 +191,17 @@ class Population:
         """
          Get the best individual of the population (Maximization Problem)
         """
-        return deepcopy(sorted(self.individuals, key = lambda x: x.get_fitness())[0])
+        return deepcopy(sorted(self.individuals, key = lambda x: x.get_fitness(), reverse = True)[0])
     
     def evolve(self, n_generations, xo_prob, mut_prob, select, mutate, crossover, elitism):
         """
          Evolve the population: get generation after generation until the end of
          the evolutionary process
         """
+
+        t0 = time.time()
+
+        fitness_history = []
 
         for i in range(n_generations):
 
@@ -206,43 +211,45 @@ class Population:
                 # keep the best individual
                 elite = self.best_individual()
 
-            while len(new_pop) < self.size:
-                p1, p2 = select(self), select(self) # selection method is passed as argument
+            while len(new_pop) < self.pop_size:
+                p1, p2 = select(self), select(self)
 
                 if random() < xo_prob:
-                    # crossover method is passed as argument
                     offspring1, offspring2 = crossover(p1, p2)
                 else:
-                    # TODO: replication = copy of the parents
+                    # TODO Falar berfin: replication = copy of the parents
                     offspring1, offspring2 = deepcopy(p1), deepcopy(p2)
 
                 if random() < mut_prob:
-                    offspring1 = mutate(offspring1) # mutation method is passed as argument
-                if random() < mut_prob:
-                    offspring2 = mutate(offspring2) # mutation method is passed as argument
+                    offspring1 = mutate(offspring1)
+                # Check if crossover produced two offsprings
+                if offspring2 is not None and random() < mut_prob:
+                    offspring2 = mutate(offspring2)
 
                 new_pop.append(offspring1)
                 
                 # to check if we can insert both of the individuals or only one
-                if len(new_pop) < self.size:
+                if offspring2 is not None and len(new_pop) < self.pop_size:
                     new_pop.append(offspring2)
                 
-            
             if elitism:
-                if self.get_optim() == 'max':
-                    worst_ind = min(new_pop, key = lambda x: x.get_fitness())
-                    # if elite is better than the worst individual in the population, replace it
-                    if elite.get_fitness() > worst_ind.get_fitness():
-                        new_pop.pop(new_pop.index(worst_ind))
-                        new_pop.append(elite)
-                else:
-                    worst_ind = max(new_pop, key = lambda x: x.get_fitness())
-                    # if elite is better than the worst individual in the population, replace it
-                    if elite.get_fitness() < worst_ind.get_fitness():
-                        new_pop.pop(new_pop.index(worst_ind))
-                        new_pop.append(elite)
+                worst_ind = min(new_pop, key = lambda x: x.get_fitness())
+                
+                # if elite is better than the worst individual in the population, replace it
+                if elite.get_fitness() > worst_ind.get_fitness():
+                    new_pop.pop(new_pop.index(worst_ind))
+                    new_pop.append(elite)
 
             self.individuals = new_pop
 
             best_indiv = self.best_individual()
             print(f'Best individual in generation {i}: {best_indiv} Fitness: {best_indiv.get_fitness()}')
+
+            fitness_history.append(best_indiv.get_fitness())
+
+
+        t1 = time.time()
+
+        print(f'Execution time: {t1 - t0} seconds')
+
+        return fitness_history
