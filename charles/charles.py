@@ -108,7 +108,7 @@ class Individual:
 
     def __getitem__(self, table_idx):
         return self.representation[table_idx]
-    
+        
     def __setitem__(self, table_idx, table):
         """
         Add table set to list of tables

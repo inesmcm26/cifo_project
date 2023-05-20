@@ -1,7 +1,6 @@
-from random import randint, sample
+import random
 
-
-def non_adjacent_swap_mutation(individual):
+def swap_mutation(individual):
     """
     Swap mutation for a GA individual
 
@@ -9,13 +8,17 @@ def non_adjacent_swap_mutation(individual):
 
     Returns: Individual: Mutated Individual
     """
-    # TODO
-    # Select two random tables
-    # Select n random individuals -> swap them
-    mutation_idxs = sample(range(len(individual)), 2)
 
-    individual[mutation_idxs[0]], individual[mutation_idxs[1]] = individual[mutation_idxs[1]], individual[mutation_idxs[0]]
+    table_idx = random.sample(range(len(individual)), 2)
 
+    # Get two guests
+    guest1 = individual[table_idx[0]].pop()
+    guest2 = individual[table_idx[1]].pop()
+
+    # Swap
+    individual[table_idx[0]].add(guest2)
+    individual[table_idx[1]].add(guest1)
+    
     return individual
 
 def merge_and_split(individual):
@@ -28,7 +31,7 @@ def merge_and_split(individual):
     """
     return individual
 
-def chega_pra_la(individual):
+def the_hop(individual):
     # TODO
     """
     The Chega Pra Lá operator, also known as the shift operator, shifts everyone in the tables one
@@ -37,20 +40,8 @@ def chega_pra_la(individual):
     """
     return individual
 
-
-def thrors(individual):
+def dream_team(individual):
     """
-    Thrors Mutation
-    Three genes are chosen randomly which shall take the different positions not
-    necessarily successive i < j < l. the gene of the position i becomes in the position j
-    and the one who was at this position will take the position l and the gene that has
-    held this position takes the position i.
-
-    Tipo 1 2 3 4 5 6
-
-    Seleciona 1 2 4 e 6 e troca a ordem deles
-
-    6 4 FIXO(3) 2 FIXO(5) 1
-
-    Kinda swap mutation de dentro para fora
+    escolher as pessoas com maior relação nas duas mesas e mantê-las
+    shuffle das outras
     """
