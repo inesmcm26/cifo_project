@@ -1,6 +1,6 @@
-from random import choice, uniform
+from random import choice, uniform, choices
 
-def fitness_proportionate_selection(population):
+def fps(population):
     """
     Fitness proportionate selection implementation.
 
@@ -10,31 +10,30 @@ def fitness_proportionate_selection(population):
     Returns:
         Individual: selected individual.
     """
-    if population.optim == 'max':
-        # sum total fitness
-        total_fitness = sum([i.get_fitness() for i in population])
+    # sum total fitness
+    total_fitness = sum([i.get_fitness() for i in population])
 
-        # get a random number between 0 and total fitness (mark on the line)
-        mark = uniform(0, total_fitness)
+    # get a random number between 0 and total fitness (mark on the line)
+    mark = uniform(0, total_fitness)
 
-        position = 0
+    position = 0
 
-        # find individual that has mark
-        for i in population:
-            position += i.get_fitness()
-            if position >= mark:
-                return i
-            
-    elif population.optim == "min":
-        raise NotImplementedError
-
-    else:
-        raise Exception("No optimization specified (min or max).")
+    # find individual that has mark
+    for i in population:
+        position += i.get_fitness()
+        if position >= mark:
+            return i
     
 def rank_selection(population):
-    """
-    Rank selection implementation.
-    """
+    sorted_population = sorted(population, key = lambda ind: ind.get_fitness(), reverse = True)
+
+    ranks = range(1, len(sorted_population) + 1)
+
+    selection_probs = [1 - (rank / sum(ranks)) for rank in ranks]
+
+    selected_individual = choices(sorted_population, weights = selection_probs, k = 1)
+
+    return selected_individual
 
 def tournament_selection(population, tournament_size = 4):
     """
@@ -51,7 +50,4 @@ def tournament_selection(population, tournament_size = 4):
     # Select 'size' random individuals with repetition
     tournament = [choice(population.get_individuals()) for _ in range(tournament_size)]
 
-    if population.get_optim() == 'max':
-        return max(tournament, key = lambda x: x.get_fitness())
-    else:
-        return min(tournament, key = lambda x: x.get_fitness())
+    return max(tournament, key = lambda x: x.get_fitness())
