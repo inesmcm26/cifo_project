@@ -22,13 +22,13 @@ def swap_mutation(individual):
     return individual
 
 def merge_and_split(individual):
-"""
+    """
     Merge and split mutation for a GA individual
 
     Args: individual (Individual): A GA individual from charles.py
 
     Returns: Individual: Mutated Individual
-"""
+    """
 
     # Selects two random tables
     table_idx = sample(range(len(individual)), 2)
