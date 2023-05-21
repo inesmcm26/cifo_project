@@ -23,7 +23,10 @@ for (selection, crossover, mutation, elitism) in hyperparameters_search:
 
     comb_results = pd.DataFrame()
 
+    combination_name = f'{selection.__name__}|{crossover.__name__}|{mutation.__name__}|elitism_{elitism}'
+    
     for run_nr in range(nr_runs):
+        print(f'----------- Run_{run_nr} of comb {combination_name}')
 
         pop = Population(pop_size = pop_size, nr_guests = 64, nr_tables = 8)
 
@@ -32,7 +35,6 @@ for (selection, crossover, mutation, elitism) in hyperparameters_search:
     
         comb_results[f'Run_{run_nr}'] = fitness_history
 
-    combination_name = f'{selection.__name__}_{crossover.__name__}_{mutation.__name__}_Elitism:{elitism}'
 
     results[combination_name] = comb_results.mean(axis = 1)
 
