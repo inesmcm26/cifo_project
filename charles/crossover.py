@@ -21,13 +21,9 @@ def get_best_combination(guests_to_seat, nr_guests_to_fill, table_to_fill, offsp
     # Possible combinations of people to fill the table
     guests_combinations = list(itertools.combinations(guests_to_seat, nr_guests_to_fill))
 
-    # print('Possible combinations', guests_combinations)
-
     best_fitness = -100000
     best_table = None
     best_comb = None
-
-    # print('Guests to seat', guests_to_seat)
 
     for comb in guests_combinations:
         # Add guests to the table to fill
@@ -38,8 +34,6 @@ def get_best_combination(guests_to_seat, nr_guests_to_fill, table_to_fill, offsp
 
         # Calculate table fitness
         table_fitness = offspring.get_table_fitness(-1)
-
-        # print('Table fitness', table_fitness)
         
         if table_fitness >= best_fitness:
             best_fitness = table_fitness
@@ -48,9 +42,6 @@ def get_best_combination(guests_to_seat, nr_guests_to_fill, table_to_fill, offsp
         
         # Remove table from offspring
         offspring.remove_table(-1)
-
-    # print('Best table found', best_table)
-    # print('Best comb found', best_comb)
     
     # Add table with highest fitness to offspring
     offspring.append_table(best_table)
@@ -120,29 +111,21 @@ def gbx_crossover(p1, p2):
 
         table_to_fill = p2_copy[0]
 
-        # print('Table to fill', table_to_fill)
-
         # Exclude people seated in the table from the people to seat
         guests_to_seat = guests_to_seat.difference(table_to_fill)
 
         # If table if full, remove it from the second p copy and add it to the offspring
         if len(table_to_fill) == seats_per_table:
-
-            # print('Mesa completa')
             # Add table to offspring
             offspring.append_table(table_to_fill)
 
             # Remove table from the second p copy
             p2_copy.remove(table_to_fill)
 
-            # print('P2 depois de tirar mesa ', p2_copy)
-
         # If table is not full, it needs to be filled with people from other tables
         else:
             # Number of empty seats in the table
             nr_guests_to_fill = seats_per_table - len(table_to_fill)
-
-            # print(f'Mesa incompleta com {nr_guests_to_fill} lugares por preencher')
 
             # Get the best combination of guests to fill the table and add it to the offspring
             # Also return the best combination of guests so they can be removed from the people to seat
@@ -150,8 +133,6 @@ def gbx_crossover(p1, p2):
 
             # Remove the people of the combination from the people not selected
             guests_to_seat -= set(best_comb)
-
-            # print('Guests left to seat', guests_to_seat)
 
             # Remove the guests added to table_to_fill from the other tables of p2
             p2_copy = [table - set(best_comb) for table in p2_copy]
@@ -260,38 +241,42 @@ def eager_breader_crossover(p1, p2):
 
     return offspring, None
 
-def my_custom_crossover(p1, p2):
+def twin_maker(p1, p2):
 
     # Initialize offspring1 and offspring2
     offspring1 = [set() for _ in range(len(p1))]
     offspring2 = [set() for _ in range(len(p2))]
 
     nr_guests = len(p1) * len(p1[0])
+    seats_per_table = len(p1[0])
 
     # Loop through p1 and p2, and then p2 and p1
     for p1, p2, offspring in [(p1, p2, offspring1), (p2, p1, offspring2)]:
+        
         guests_to_keep = sample(range(1, nr_guests),
                                        randint(round(nr_guests / 3),
                                                       round(nr_guests / 2)))  # get guests to keep on the same seat
 
+
         # Add guests to offspring based on p1
         for guest in guests_to_keep:
-            for idx, table in enumerate(p1):
+            for table_idx, table in enumerate(p1):
                 if guest in table:
-                    offspring[idx].add(guest)
-
+                    offspring[table_idx].add(guest)
 
         offspring_idx = 0
 
         # Add guests to offspring based on p2
         for table in p2:
             for guest in table:
+                # If guest yet to be seated
                 if guest not in guests_to_keep:
-                    if len(offspring[offspring_idx]) < len(table) or offspring_idx == (len(p2) - 1):
-                        offspring[offspring_idx].add(guest)
-                    else:
+                    # Until a table with an empty seat is found
+                    while len(offspring[offspring_idx]) >= seats_per_table:
                         offspring_idx += 1
-                        offspring[offspring_idx].add(guest)
+                    
+                    # Seat guest in table with available seats
+                    offspring[offspring_idx].add(guest)
                         
     return Individual(offspring1), Individual(offspring2)
 
