@@ -31,7 +31,7 @@ def rank_selection(population):
 
     selection_probs = [1 - (rank / sum(ranks)) for rank in ranks]
 
-    selected_individual = choices(sorted_population, weights = selection_probs, k = 1)
+    selected_individual = choices(sorted_population, weights = selection_probs, k = 1)[0]
 
     return selected_individual
 
