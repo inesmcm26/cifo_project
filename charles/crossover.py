@@ -158,6 +158,10 @@ def eager_breader_crossover(p1, p2):
     p1_idx = 0
     p2_idx = 0
 
+    p1.representation = sorted(p1, key=lambda table: p1.get_table_fitness(p1.representation.index(table)), reverse=True)
+
+    p2.representation = sorted(p2, key=lambda table: p2.get_table_fitness(p2.representation.index(table)), reverse=True)
+
     offspring = Individual(arrangement = None)
 
     guests_per_table = len(p1[0])
