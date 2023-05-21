@@ -220,11 +220,18 @@ class Population:
                     # TODO Falar berfin: replication = copy of the parents
                     offspring1, offspring2 = deepcopy(p1), deepcopy(p2)
 
+                assert(len(offspring1[0]) == 8)
+                
+                if offspring2 is not None:
+                    assert(len(offspring2[0]) == 8)
+
                 if random() < mut_prob:
                     offspring1 = mutate(offspring1)
+                    assert(len(offspring1[0]) == 8)
                 # Check if crossover produced two offsprings
                 if offspring2 is not None and random() < mut_prob:
                     offspring2 = mutate(offspring2)
+                    assert(len(offspring2[0]) == 8)
 
                 new_pop.append(offspring1)
                 
