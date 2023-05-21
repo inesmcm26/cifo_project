@@ -72,7 +72,7 @@ def the_hop(individual):
         # Add the random person to the moved_persons list
         moved_persons.append(random_person)
 
-        # Move the random person to the next table
+        # Move the random person to the next person
         next_table_index = (i + 1) % len(individual)
         next_table = individual[next_table_index]
         next_table.add(random_person)
@@ -86,8 +86,6 @@ def dream_team(individual):
     """
 
     seats_per_table = len(individual[0])
-    print('Len individual ', seats_per_table)
-    print('Individual', individual)
 
     guests_to_shuffle = []
 
@@ -109,31 +107,17 @@ def dream_team(individual):
     # Suffle guests
     shuffle(guests_to_shuffle)
 
-    print('Individual before being filled ', individual)
-    print('Guests to shuffle ', guests_to_shuffle)
-
     # Seat guests in the suffled order
     table_idx = 0
 
-    while len(guests_to_shuffle) > 0:
-        print('Guests to seat ', guests_to_shuffle)
-        print('Len of guests to seat ', len(guests_to_shuffle))
-        print('Table idx ', table_idx)
-
+    while len(guests_to_shuffle) > 0 and table_idx < len(individual):
         # get the first guest left to seat
         guest_to_seat = guests_to_shuffle.pop(0)
-
-        print('Guest to seat ', guest_to_seat)
         
         # If there are no empty setas, go to next table with available seats
         while len(individual[table_idx]) >= seats_per_table:
-            print('Len of table ', table_idx, ' is ', len(individual[table_idx]))
-            print('Seats per table ', seats_per_table)
             table_idx += 1
-            print('No available seats in table. Moving to table ', table_idx)
 
-        print('Seating guest ', guest_to_seat, ' in table ', table_idx)
         individual.seat_guest(guest_to_seat, table_idx)
-        print(individual)
 
     return individual
