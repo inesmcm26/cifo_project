@@ -1,4 +1,4 @@
-from random import sample, random
+from random import sample, random, randint
 import itertools
 from collections import Counter
 from copy import deepcopy
@@ -270,8 +270,8 @@ def my_custom_crossover(p1, p2):
 
     # Loop through p1 and p2, and then p2 and p1
     for p1, p2, offspring in [(p1, p2, offspring1), (p2, p1, offspring2)]:
-        guests_to_keep = random.sample(range(1, nr_guests),
-                                       random.randint(round(nr_guests / 3),
+        guests_to_keep = sample(range(1, nr_guests),
+                                       randint(round(nr_guests / 3),
                                                       round(nr_guests / 2)))  # get guests to keep on the same seat
 
         # Add guests to offspring based on p1
