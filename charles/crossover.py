@@ -167,6 +167,8 @@ def eager_breader_crossover(p1, p2):
     guests_per_table = len(p1[0])
     nr_guests = len(p1) * guests_per_table
 
+    # ------------ Collection of subsets phase ------------ #
+
 
     # Add tables until child has the correct number of tables
     while(len(offspring) < len(p1)):
