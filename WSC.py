@@ -1,17 +1,17 @@
 from charles.charles import Population
 from charles.selection import tournament_selection, rank_selection, fps
-from charles.crossover import gbx_crossover, eager_breader_crossover, my_custom_crossover
+from charles.crossover import gbx_crossover, eager_breader_crossover, twin_maker
 from charles.mutation import swap_mutation, merge_and_split, the_hop, dream_team
 
 from itertools import product
 import pandas as pd
 
 selection = [tournament_selection, rank_selection, fps]
-crossover = [gbx_crossover, eager_breader_crossover, my_custom_crossover]
+crossover = [gbx_crossover, eager_breader_crossover, twin_maker]
 mutation = [swap_mutation, merge_and_split, the_hop, dream_team]
 elitism = [True, False]
 
-nr_runs = 3
+nr_runs = 30
 n_generations = 70
 pop_size = 100
 
@@ -19,7 +19,7 @@ hyperparameters_search = list(product(selection, crossover, mutation, elitism))
 
 results = pd.DataFrame()
 
-for (selection, crossover, mutation, elitism) in hyperparameters_search[:2]:
+for (selection, crossover, mutation, elitism) in hyperparameters_search:
 
     comb_results = pd.DataFrame()
 
