@@ -1,38 +1,33 @@
-from random import random, shuffle
-from copy import deepcopy
 import os
 import sys
-import time
-
-# Add the parent folder to the sys.path
+# Add the parent folder to the sys.path to acess other files in the project
 parent_folder = os.path.abspath(os.path.join(os.getcwd(), ".."))
 sys.path.append(parent_folder)
 
-# Import the variable from data.py
+from random import random, shuffle
+from copy import deepcopy
 from data import relationships
 
-# Access the variable
+# Save data in a global variable
 relationships_matrix = relationships.relationships_matrix
-
 
 class Individual:
     """
-      Possible solution to an optimization problem
+    Possible solution to the optimization problem
     """
-    # we always initialize
     def __init__(self, arrangement = None):
-
+        """
+        Initialize the individual and its representation (list of sets)
+        """
         representation = []
 
-        # TODO: justificar isto
+        # If some table arrangement is given, use it
+        # Else, create an empty arrangement
         if arrangement is not None:
-            # it is a frozenset of frozensets
+            # To handle population initialization, where the arrangement is a frozenset of frozensets
             if not isinstance(arrangement, list):
-                # arragement is a frozenset with frozensets of guests
-                # let's covert it into a list of sets
                 arrangement = list(arrangement)
                 representation = [set(table) for table in arrangement]
-            # it is already a list of sets
             else:
                 representation = arrangement
 
@@ -52,7 +47,7 @@ class Individual:
     
     def get_fitness(self):
         """
-         Solution fitness
+         Solution fitness: sum of the fitness of each table
         """
         fitness = 0
         for table_idx in range(len(self.representation)):
@@ -62,15 +57,18 @@ class Individual:
 
     def get_table_fitness(self, table_idx):
         """
-         Table fitness
+         Table fitness: sum of pairwise relationships between guests in the table
         """
         table_fitness = 0
 
         table = deepcopy(self.representation[table_idx])
 
         while len(table) > 1:
+            # Get a guest from the table and remove it to ensure that
+            # each relationship is only counted once
             guest = table.pop()
 
+            # Save the guest fitness
             for other_guest in table:
                 table_fitness += relationships_matrix[guest - 1][other_guest - 1]
 
@@ -78,10 +76,8 @@ class Individual:
 
     def get_guest_fitness(self, guest, table_idx):
         """
-         Guest fitness
+         Guest fitness: sum of relationships between guest and other guests in the table
         """
-
-
         guest_fitness = 0
 
         table = self.representation[table_idx]
@@ -97,29 +93,39 @@ class Individual:
     
     def get_best_table_mate(self, guest, table_idx):
         """
-        Get the guest with the best relationship with the guest
+        Get the best pairwise relationship of a given guest in a table
         """
+
+        if guest not in self.representation[table_idx]:
+            raise Exception('Guest not in table')
+        
         table_matrix = relationships_matrix[guest - 1,[other_guest - 1
-                                                for other_guest in self.representation[table_idx] if other_guest != guest]]
+                                                for other_guest in self.representation[table_idx]
+                                                if other_guest != guest]]
 
         return max(table_matrix)
-    
     
     def seat_guest(self, guest, table_idx):
         """
         Add guest to the table set
         """
+        if guest in self.representation[table_idx]:
+            raise Exception('Guest already in table')
+        
         self.representation[table_idx].add(guest)
 
     def remove_guest(self, guest, table_idx):
         """
-        Remove guest from the table set
+        Remove guest from a given table
         """
+        if guest not in self.representation[table_idx]:
+            raise Exception('Guest not in table')
+        
         self.representation[table_idx].remove(guest)
 
     def append_table(self, table):
         """
-        Adds a table to the end of the list of tables
+        Appends a table to the end of the list of tables
         """
         self.representation.append(table)
 
@@ -130,6 +136,9 @@ class Individual:
         self.representation.pop(table_idx)
 
     def __getitem__(self, table_idx):
+        """
+        Get table set from list of tables
+        """
         return self.representation[table_idx]
         
     def __setitem__(self, table_idx, table):
@@ -141,7 +150,7 @@ class Individual:
 
 class Population:
     """
-      Search Space: set of individuals
+      Search Space of possible solutions
     """
     def __init__(self, pop_size, nr_guests, nr_tables):
 
@@ -155,17 +164,26 @@ class Population:
 
         self.individuals = []
 
-        guests = [i for i in range(1, nr_guests + 1)]
+        # --------------------- Generate a random population --------------------- #
 
+        guests = [i for i in range(1, nr_guests + 1)]
+        
+        # Population is a set of unique arrangements
         pop = set()
 
         while len(pop) < pop_size:
+            # Shuffle guests
             shuffle(guests)
 
+            # Create a set of tables, where each table is a set of guests
             tables = frozenset(frozenset(guests[i:i + self.guests_per_table]) for i in range(0, len(guests), self.nr_tables))
 
+            # Add the arrangement to the population. If the arrangement is
+            # already in the population,it will not be added because pop is a set
+            # This prevents the generation of redundant arrangements
             pop.add(tables)
 
+        # Convert the arrangements to Individuals
         for arrangement in pop:
             self.individuals.append(Individual(arrangement))
     
@@ -187,17 +205,23 @@ class Population:
     def get_individuals(self):
         return self.individuals
 
+    def best_individuals(self, n = 5):
+        """
+        Get the best n individual of the population
+        (Note: only works for maximization problems)
+        """
+        best_n = sorted(self.individuals, key = lambda x: x.get_fitness(), reverse = True)[:n]
+        
+        return [deepcopy(individual) for individual in best_n]
+
     def best_individual(self):
         """
-         Get the best individual of the population (Maximization Problem)
+        Get the best individual of the population
+        (Note: only works for maximization problems)
         """
-        return deepcopy(sorted(self.individuals, key = lambda x: x.get_fitness(), reverse = True)[0])
+        return deepcopy(max(self.individuals, key = lambda x: x.get_fitness()))
     
-    def evolve(self, n_generations, xo_prob, mut_prob, select, mutate, crossover, elitism):
-        """
-         Evolve the population: get generation after generation until the end of
-         the evolutionary process
-        """
+    def evolve(self, n_generations, xo_prob, mut_prob, select, mutate, crossover, elitism = True, elite_size = 5):
 
         fitness_history = []
 
@@ -206,54 +230,80 @@ class Population:
             new_pop = []
 
             if elitism:
-                # keep the best individual
-                elite = self.best_individual()
+                # Save the best individuals from previous generation
+                elite = self.best_individuals(elite_size)
 
             while len(new_pop) < self.pop_size:
+                # Select two parents
                 p1, p2 = select(self), select(self)
 
+                # Crossover
                 if random() < xo_prob:
+                    # Note: If crossover returns only one offspring, the second one is None
                     offspring1, offspring2 = crossover(p1, p2)
                 else:
-                    # TODO Falar berfin: replication = copy of the parents
                     offspring1, offspring2 = deepcopy(p1), deepcopy(p2)
 
-                assert_size(offspring1)
+                self.assert_size(offspring1)
                 
                 if offspring2 is not None:
-                    assert_size(offspring2)
+                    self.assert_size(offspring2)
 
+                # Mutation
                 if random() < mut_prob:
                     offspring1 = mutate(offspring1)
-                    assert_size(offspring1)
-                # Check if crossover produced two offsprings
+                    self.assert_size(offspring1)
+                
                 if offspring2 is not None and random() < mut_prob:
                     offspring2 = mutate(offspring2)
-                    assert_size(offspring2)
+                    self.assert_size(offspring2)
 
                 new_pop.append(offspring1)
                 
-                # to check if we can insert both of the individuals or only one
+                # Check if there is still space in the population for the second offspring
                 if offspring2 is not None and len(new_pop) < self.pop_size:
                     new_pop.append(offspring2)
-                
+            
+            # Elitism
             if elitism:
-                worst_ind = min(new_pop, key = lambda x: x.get_fitness())
-                
-                # if elite is better than the worst individual in the population, replace it
-                if elite.get_fitness() > worst_ind.get_fitness():
-                    new_pop.pop(new_pop.index(worst_ind))
-                    new_pop.append(elite)
+                # Save the worst individuals from the current generation in a list of tuples
+                # The second element of the tuple indicated that the Individual belongs to the new population
+                worst_ind = [(ind, True) for ind in sorted(new_pop, key = lambda x: x.get_fitness())[:elite_size]]
 
+                # Save the best individuals from the previous generation in a list of tuples
+                # The second element of the tuple indicated that the Individual belongs to the previous population
+                elite = [(ind, False) for ind in elite]
+
+                # Join the best from the previous generation with the worst from the new onw and sort them
+                elite_aux = sorted(elite + worst_ind, key = lambda x: x[0].get_fitness(), reverse = True)
+
+                # Get best/worst Individuals to keep/discard
+                individuals_to_keep = elite_aux[:elite_size]
+                individuals_to_discard = elite_aux[elite_size:]
+                
+                # Remove necessary individuals from the new population
+                for (individual, in_pop) in individuals_to_discard:
+                    if in_pop:
+                        new_pop.pop(new_pop.index(individual))
+                
+                # Add the new individuals from elite to the new population
+                for (individual, in_pop) in individuals_to_keep:
+                    if not in_pop:
+                        new_pop.append(individual)
+
+                assert(len(new_pop) == self.pop_size) # TODO
+
+            # Replace the old population with the new one
             self.individuals = new_pop
 
             best_indiv = self.best_individual()
             print(f'Best individual in generation {i}: {best_indiv} Fitness: {best_indiv.get_fitness()}')
 
+            # Save the best fitness of the generation
             fitness_history.append(best_indiv.get_fitness())
 
         return fitness_history
     
-def assert_size(individual):
-    for table in individual:
-        assert len(table) == 8
+    def assert_size(self, individual):
+        for table in individual:
+            assert len(table) == self.guests_per_table
