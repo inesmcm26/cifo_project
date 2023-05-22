@@ -59,7 +59,7 @@ def gbx_crossover(p1, p2):
 
     The GBX starts by selecting between 1/3 and 2/3 of the tables from the
     first parent and sets them in the offspring. The guests seated in this
-    step are removed from the second parent. Then, it sets the remaining
+    step are removed from the second parent. Then, it fills the remaining
     tables with the guests from the second parent in a greedy way.
 
     At each iteration, the tables of the second parent are sorted by number
