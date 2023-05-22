@@ -6,8 +6,10 @@ def swap_mutation(individual):
 
     The swap mutation operator swaps two guests from two different tables.
 
-    Args: individual (Individual): A GGA individual from charles.py
-    Returns: Individual: Mutated Individual
+    Args: 
+        individual (Individual): An individual from charles.py
+    Returns:
+        individual (Individual): Mutated Individual
     """
 
     # Get two random tables
@@ -30,8 +32,10 @@ def merge_and_split(individual):
     The merge and split mutation operator merges two tables and then randomly
     splits the merged table into two new tables.
 
-    Args: individual (Individual): A GGA individual from charles.py
-    Returns: Individual: Mutated Individual
+    Args: 
+        individual (Individual): An individual from charles.py
+    Returns:
+        individual (Individual): Mutated Individual
     """
 
     # Selects two random tables
@@ -57,8 +61,10 @@ def the_hop(individual):
     The Hop operator, also known as the Shift operator, shifts one guest
     from each table to the next table.
 
-    Args: individual (Individual): A GGA individual from charles.py
-    Returns: Individual: Mutated Individual
+    Args: 
+        individual (Individual): An individual from charles.py
+    Returns:
+        individual (Individual): Mutated Individual
     """
 
     # List to keep track of guests that have been moved
@@ -93,6 +99,11 @@ def dream_team(individual):
 
     The dream team operator preserves guests with the strongest relationships
     at each table and randomly shuffles the remaining among tables.
+
+    Args: 
+        individual (Individual): An individual from charles.py
+    Returns:
+        individual (Individual): Mutated Individual
     """
 
     seats_per_table = len(individual[0])
@@ -108,16 +119,16 @@ def dream_team(individual):
         for guest in individual[table_idx]:
             table_best_relationships[guest] = individual.get_best_table_mate(guest, table_idx)
 
-        # Get the best relationship value of the table
+        # Get the highest relationship value of the table
         max_relationship = max(table_best_relationships.values())
 
         # Get all guests with worse best relationship than max_relationship
         guests_to_remove = [guest for guest in individual[table_idx] if table_best_relationships[guest] != max_relationship]
 
-        # Add the guests to shuffle
+        # Add those guests to shuffle
         guests_to_shuffle = guests_to_shuffle + guests_to_remove
 
-        # Remove the guests from the table
+        # Remove thõse guests from the table
         # for guest in guests_to_remove:
         #     individual[table_idx].remove_guest(guest, table_idx) # TODO: confirmar
         individual[table_idx] = set(guest for guest in individual[table_idx] if guest not in guests_to_remove)
@@ -128,14 +139,15 @@ def dream_team(individual):
     table_idx = 0
 
     # Seat guests in the suffled order
-    while len(guests_to_shuffle) > 0 and table_idx < len(individual):
+    while len(guests_to_shuffle) > 0:
         # Get the first guest left to seat
         guest_to_seat = guests_to_shuffle.pop(0)
         
-        # If there are no empty seats, go to next table with available seats
+        # Find the next table with available seats
         while len(individual[table_idx]) >= seats_per_table:
             table_idx += 1
 
+        # Seat the guest
         individual.seat_guest(guest_to_seat, table_idx)
 
     return individual
