@@ -118,9 +118,9 @@ def dream_team(individual):
         guests_to_shuffle = guests_to_shuffle + guests_to_remove
 
         # Remove the guests from the table
-        for guest in guests_to_remove:
-            individual[table_idx].remove_guest(guest, table_idx) # TODO: confirmar
-        # individual[table_idx] = set(guest for guest in individual[table_idx] if guest not in guests_to_remove)
+        # for guest in guests_to_remove:
+        #     individual[table_idx].remove_guest(guest, table_idx) # TODO: confirmar
+        individual[table_idx] = set(guest for guest in individual[table_idx] if guest not in guests_to_remove)
 
     # Suffle guests
     shuffle(guests_to_shuffle)
