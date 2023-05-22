@@ -199,8 +199,6 @@ class Population:
          the evolutionary process
         """
 
-        t0 = time.time()
-
         fitness_history = []
 
         for i in range(n_generations):
@@ -253,11 +251,6 @@ class Population:
             print(f'Best individual in generation {i}: {best_indiv} Fitness: {best_indiv.get_fitness()}')
 
             fitness_history.append(best_indiv.get_fitness())
-
-
-        t1 = time.time()
-
-        print(f'Execution time: {t1 - t0} seconds')
 
         return fitness_history
     
