@@ -25,6 +25,15 @@ def fps(population):
             return i
     
 def rank_selection(population):
+    """
+    Ranking selection implementation.
+
+    Args:
+        population (Population): The population we want to select from.
+    
+    Returns:
+        Individual: selected individual.
+    """
     sorted_population = sorted(population, key = lambda ind: ind.get_fitness(), reverse = True)
 
     ranks = range(1, len(sorted_population) + 1)
@@ -47,7 +56,6 @@ def tournament_selection(population, tournament_size = 4):
         Individual: selected individual.
     """
     
-    # Select 'size' random individuals with repetition
     tournament = [choice(population.get_individuals()) for _ in range(tournament_size)]
 
     return max(tournament, key = lambda x: x.get_fitness())

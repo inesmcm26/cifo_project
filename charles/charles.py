@@ -179,7 +179,7 @@ class Population:
             tables = frozenset(frozenset(guests[i:i + self.guests_per_table]) for i in range(0, len(guests), self.nr_tables))
 
             # Add the arrangement to the population. If the arrangement is
-            # already in the population,it will not be added because pop is a set
+            # already in the population, it will not be added because pop is a set
             # This prevents the generation of redundant arrangements
             pop.add(tables)
 
