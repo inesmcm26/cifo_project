@@ -52,7 +52,7 @@ nr_tables = 8
 results = pd.DataFrame()
 
 
-for (selection, crossover, mutation) in selection_combs[:2]:
+for (selection, (crossover, mutation)) in selection_combs:
 
     # Save the name of the combination
     combination_name = f'{selection.__name__}|{crossover.__name__}|{mutation.__name__}'
@@ -68,8 +68,8 @@ for (selection, crossover, mutation) in selection_combs[:2]:
 
         # Run the GA
         best_fitnesses = pop.evolve(n_generations = n_generations, xo_prob = xo_prob,
-                                    mut_prob = mut_prob, selection = selection,
-                                    crossover = crossover, mutation = mutation)
+                                    mut_prob = mut_prob, select = selection,
+                                    crossover = crossover, mutate = mutation)
 
         # Save the best fitnesses of each generation
         comb_results.append(best_fitnesses)
