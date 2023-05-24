@@ -18,6 +18,12 @@ class Individual:
     def __init__(self, arrangement = None):
         """
         Initialize the individual and its representation (list of sets)
+
+        Args:
+            arrangement
+                (list): List of sets, where each set represents a table
+                (frozenset): Frozenset of frozensets, where each frozenset represents a table
+                (None): Create an empty arrangement
         """
         representation = []
 
@@ -302,7 +308,7 @@ class Population:
             # Save the best fitness of the generation
             fitness_history.append(best_indiv.get_fitness())
 
-        return fitness_history
+        return fitness_history, best_indiv
     
     def assert_size(self, individual):
         for table in individual:
