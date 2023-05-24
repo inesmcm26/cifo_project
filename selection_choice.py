@@ -24,7 +24,7 @@ crossover = [eager_breader_crossover, gbx_crossover, twin_maker]
 mutation = [the_hop, merge_and_split, swap_mutation, dream_team]
 
 # Randomly select 5 combinations of crossover and mutation
-xo_mut_comb = sample(list(product(crossover, mutation)), 5)
+xo_mut_comb = sample(list(product(crossover, mutation)), 8)
 
 # Add the selection methods to the combinations
 tournament_combs = list(product([tournament_selection], xo_mut_comb))
@@ -41,8 +41,8 @@ xo_prob = 0.9
 mut_prob = 0.1
 
 # GA evolution
-nr_runs = 10
-n_generations = 70
+nr_runs = 30
+n_generations = 100
 pop_size = 50
 
 # Problem specific
