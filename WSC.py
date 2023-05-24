@@ -1,5 +1,5 @@
 from charles.charles import Population
-from charles.selection import tournament_selection, rank_selection, fps
+from charles.selection import tournament_selection
 from charles.crossover import gbx_crossover, eager_breader_crossover, twin_maker
 from charles.mutation import swap_mutation, merge_and_split, the_hop, dream_team
 
@@ -73,7 +73,7 @@ for (selection, crossover, mutation, elitism) in hyperparameters_search:
 results = results.applymap(lambda x: json.dumps(x.tolist()) if isinstance(x, np.ndarray) else x)
 
 # Save results to file
-results.to_csv('results.csv', quoting=csv.QUOTE_NONNUMERIC, index=False)
+results.to_csv('results/results.csv', quoting=csv.QUOTE_NONNUMERIC, index=False)
 
 t1 = time.time()
 

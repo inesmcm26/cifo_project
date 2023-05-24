@@ -24,7 +24,7 @@ def fps(population):
         if position >= mark:
             return i
     
-def rank_selection(population):
+def ranking_selection(population):
     """
     Ranking selection implementation.
 
