@@ -9,7 +9,7 @@ The average best algorithm will be choosen as the selection method for later
 use in the genetic algorithms with different crossover and mutation methods.
 """
 
-from charles.crossover import gbx_crossover, eager_breader_crossover, twin_maker
+from charles.crossover import gbx_crossover, eager_breeder_crossover, twin_maker
 from charles.mutation import swap_mutation, merge_and_split, the_hop, dream_team
 from charles.selection import tournament_selection, fps, ranking_selection
 
@@ -21,7 +21,7 @@ import pandas as pd
 import numpy as np
 
 # --------------------- Hyperparameters to tune -------------------- #
-crossover = [eager_breader_crossover, gbx_crossover, twin_maker]
+crossover = [eager_breeder_crossover, gbx_crossover, twin_maker]
 mutation = [the_hop, merge_and_split, swap_mutation, dream_team]
 
 # Randomly select 5 combinations of crossover and mutation
@@ -78,7 +78,7 @@ for (selection, (crossover, mutation)) in selection_combs:
     results[combination_name] = np.median(np.transpose(comb_results), axis = 1)
 
 
-results.to_csv('results/selection_results.csv')
+results.to_csv('selection_results.csv')
 
 
 

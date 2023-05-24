@@ -1,6 +1,16 @@
+"""
+This file contains a script used to assess the crossover, mutation and
+elitism methods of the genetic algorithm.
+
+Each algorithm is run 30 times and the fitness of each generation is saved.
+
+The algorithms with average best fitness on the last generation will be
+later analysed and compared.
+"""
+
 from charles.charles import Population
 from charles.selection import tournament_selection
-from charles.crossover import gbx_crossover, eager_breader_crossover, twin_maker
+from charles.crossover import gbx_crossover, eager_breeder_crossover, twin_maker
 from charles.mutation import swap_mutation, merge_and_split, the_hop, dream_team
 
 from itertools import product
@@ -12,7 +22,7 @@ import time
 
 # --------------------- Hyperparameters to tune -------------------- #
 selection = [tournament_selection]
-crossover = [eager_breader_crossover, gbx_crossover, twin_maker]
+crossover = [eager_breeder_crossover, gbx_crossover, twin_maker]
 mutation = [the_hop, merge_and_split, swap_mutation, dream_team]
 elitism = [True, False]
 

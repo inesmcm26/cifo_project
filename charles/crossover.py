@@ -139,11 +139,11 @@ def gbx_crossover(p1, p2):
 
     return offspring, None
 
-def eager_breader_crossover(p1, p2):
+def eager_breeder_crossover(p1, p2):
     """
-    Eager Breader Crossover (EBC) implementation.
+    Eager Breeder Crossover (EBC) implementation.
 
-    The Eager Breader Crossover (EBC) starts by sorting the tables of each parent
+    The Eager Breeder Crossover (EBC) starts by sorting the tables of each parent
     by fitness. Then, it iteratively adds the table with the highest fitness to
     the offspring until the offspring has the same number of tables as the parents.
 
