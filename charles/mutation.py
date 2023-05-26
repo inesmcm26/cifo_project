@@ -117,21 +117,20 @@ def dream_team(individual):
         table_best_relationships = {}
     
         for guest in individual[table_idx]:
-            table_best_relationships[guest] = individual.get_best_table_mate(guest, table_idx)
+            table_best_relationships[guest] = individual.get_guest_max_relationship(guest, table_idx)
 
         # Get the highest relationship value of the table
         max_relationship = max(table_best_relationships.values())
 
-        # Get all guests with worse best relationship than max_relationship
+        # Get all guests with worse highest relationship than max_relationship
         guests_to_remove = [guest for guest in individual[table_idx] if table_best_relationships[guest] != max_relationship]
 
-        # Add those guests to shuffle
+        # Add those guests to be shuffled
         guests_to_shuffle = guests_to_shuffle + guests_to_remove
 
-        # Remove thõse guests from the table
-        # for guest in guests_to_remove:
-        #     individual[table_idx].remove_guest(guest, table_idx) # TODO: confirmar
-        individual[table_idx] = set(guest for guest in individual[table_idx] if guest not in guests_to_remove)
+        # Remove those guests from the table
+        for guest in guests_to_remove:
+            individual.remove_guest(guest, table_idx)
 
     # Suffle guests
     shuffle(guests_to_shuffle)
