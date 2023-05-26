@@ -34,6 +34,7 @@ class Individual:
             if not isinstance(arrangement, list):
                 arrangement = list(arrangement)
                 representation = [set(table) for table in arrangement]
+            # When a list of sets is given
             else:
                 representation = arrangement
 
@@ -74,7 +75,7 @@ class Individual:
             # each relationship is only counted once
             guest = table.pop()
 
-            # Save the guest fitness
+            # Sum the relationships between the guest and the other guests in the table
             for other_guest in table:
                 table_fitness += relationships_matrix[guest - 1][other_guest - 1]
 
@@ -97,7 +98,7 @@ class Individual:
         
         return guest_fitness
     
-    def get_best_table_mate(self, guest, table_idx):
+    def get_guest_max_relationship(self, guest, table_idx):
         """
         Get the best pairwise relationship of a given guest in a table
         """
@@ -250,19 +251,12 @@ class Population:
                 else:
                     offspring1, offspring2 = deepcopy(p1), deepcopy(p2)
 
-                self.assert_size(offspring1)
-                
-                if offspring2 is not None:
-                    self.assert_size(offspring2)
-
                 # Mutation
                 if random() < mut_prob:
                     offspring1 = mutate(offspring1)
-                    self.assert_size(offspring1)
                 
                 if offspring2 is not None and random() < mut_prob:
                     offspring2 = mutate(offspring2)
-                    self.assert_size(offspring2)
 
                 new_pop.append(offspring1)
                 
@@ -297,8 +291,6 @@ class Population:
                     if not in_pop:
                         new_pop.append(individual)
 
-                assert(len(new_pop) == self.pop_size) # TODO
-
             # Replace the old population with the new one
             self.individuals = new_pop
 
@@ -309,7 +301,3 @@ class Population:
             fitness_history.append(best_indiv.get_fitness())
 
         return fitness_history, best_indiv
-    
-    def assert_size(self, individual):
-        for table in individual:
-            assert len(table) == self.guests_per_table
