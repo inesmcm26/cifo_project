@@ -16,8 +16,7 @@ The files on this project are organized in the under structure:
     - `mutation.py`: Contains the implementation of 4 mutation methods that operate at the group level on WSC Individuals
     - `selection.py`: Contains the implementation of 3 selection methods that choose a WSC Individual from the Population
 
-<br>
-
+    
 - `data` folder : Contains the relationship matrix for a WSC problem with 64 guests and 8 tables, as well as a script to load that data into an appropiate numpy array
 
 
