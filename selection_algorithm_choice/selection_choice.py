@@ -5,8 +5,7 @@ Eigth combinations of other genetic operations are choosen to be used together
 with each selection algorithm. Each combination is run 30 times and the median
 fitness of each generation is saved.
 
-The average best algorithm will be choosen as the selection method for later
-use in the genetic algorithms with different crossover and mutation methods.
+The average best algorithm will be choosen as the selection method for later use.
 """
 
 from charles.crossover import gbx_crossover, eager_breeder_crossover, twin_maker
@@ -20,11 +19,11 @@ from random import sample
 import pandas as pd
 import numpy as np
 
-# --------------------- Hyperparameters to tune -------------------- #
+# --------------- Hyperparameters to choose randomly ---------------- #
 crossover = [eager_breeder_crossover, gbx_crossover, twin_maker]
 mutation = [the_hop, merge_and_split, swap_mutation, dream_team]
 
-# Randomly select 5 combinations of crossover and mutation
+# Randomly select 8 combinations of crossover and mutation
 xo_mut_comb = sample(list(product(crossover, mutation)), 8)
 
 # Add the selection methods to the combinations
@@ -32,9 +31,8 @@ tournament_combs = list(product([tournament_selection], xo_mut_comb))
 fps_combs = list(product([fps], xo_mut_comb))
 ranking_combs = list(product([ranking_selection], xo_mut_comb))
 
+# Combinations of selection, crossover and mutation to be tested
 selection_combs = tournament_combs + fps_combs + ranking_combs
-
-print(selection_combs)
 
 # ---------------------- Fixed Hyperparameters ---------------------- #
 # Genetic operators and elitism
@@ -79,9 +77,3 @@ for (selection, (crossover, mutation)) in selection_combs:
 
 
 results.to_csv('selection_results.csv')
-
-
-
-
-
-
