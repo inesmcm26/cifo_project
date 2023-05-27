@@ -1,9 +1,9 @@
 """
 This file contains a script used to assess the best selection algorithm.
 
-Eigth combinations of other genetic operations are choosen to be used together
-with each selection algorithm. Each combination is run 30 times and the median
-fitness of each generation is saved.
+Eigth combinations of genetic operators (crossover and mutation) are
+choosen to be used together with each selection algorithm. Each combination
+is run 30 times and the median fitness of each generation is saved.
 
 The average best algorithm will be choosen as the selection method for later use.
 """
