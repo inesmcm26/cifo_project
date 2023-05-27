@@ -43,6 +43,8 @@ An hypothetical dataset of relationships among 64 wedding guests was created, as
 - Strangers: 0
 - Enimies: -1000
 
+Relationships like, for example, Sister-in-Law and Great Uncle were set to 0 for simplicity, as we determined that their relevance was already somehow encoded in the other above mentioned relationships.
+
 ## Methodology
 
 A Wedding Seating Chart (WSC) Individual and Population classes were implemented with the necessary and adequate methods. Several diferent genetic operators that work at the group level were also implemented.
