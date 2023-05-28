@@ -267,18 +267,21 @@ class Population:
             # Elitism
             if elitism:
                 # Save the worst individuals from the current generation in a list of tuples
-                # The second element of the tuple indicated that the Individual belongs to the new population
+                # The second element of the tuple (True) indicates that the Individual belongs
+                # to the new population
                 worst_ind = [(ind, True) for ind in sorted(new_pop, key = lambda x: x.get_fitness())[:elite_size]]
 
                 # Save the best individuals from the previous generation in a list of tuples
-                # The second element of the tuple indicated that the Individual belongs to the previous population
+                # The second element of the tuple (False) indicates that the Individual belongs
+                # to the previous population
                 elite = [(ind, False) for ind in elite]
 
                 # Join the best from the previous generation with the worst from the new onw and sort them
                 elite_aux = sorted(elite + worst_ind, key = lambda x: x[0].get_fitness(), reverse = True)
 
-                # Get best/worst Individuals to keep/discard
+                # Get best Individuals to keep
                 individuals_to_keep = elite_aux[:elite_size]
+                # Get worst Individuals to discard
                 individuals_to_discard = elite_aux[elite_size:]
                 
                 # Remove necessary individuals from the new population
